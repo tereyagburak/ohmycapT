@@ -1,5 +1,7 @@
 package com.example.captprint.feature.settings
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -94,7 +96,17 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/tereyagburak/ohmycapT"))
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("⭐ GitHub'da İncele & Yıldızla (Star Ver!)")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Sürüm: 1.0 (Derleme 20261111) - Geliştirici için 7 kez dokunun",
                     style = MaterialTheme.typography.bodySmall,

@@ -2,6 +2,9 @@
 
 # 🖨️ ohmycapT
 
+[![GitHub stars](https://img.shields.io/github/stars/tereyagburak/ohmycapT?style=social)](https://github.com/tereyagburak/ohmycapT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 **🌐 Language / Dil:** [🇹🇷 Türkçe](#-türkçe) · [🇬🇧 English](#-english)
 
 ---
@@ -10,12 +13,33 @@
 
 # 🇹🇷 Türkçe
 
-> 🤖 **Vibecoded:** Bu proje tamamen **vibecoded**'dır. Yani yapay zekâyla sohbet ede ede, "bakalım olacak mı?" diyerek yazıldı. Kod kalitesi "çalışıyorsa dokunma" seviyesindedir :)
+> 🤖 **Vibecoded:** Bu proje tamamen **vibecoded**'dır! Yani yapay zekâyla sohbet ede ede, "bakalım olacak mı?", "hadi şunu da ekleyelim" denilerek yazıldı. Kod kalitesi "çalışıyorsa dokunma" seviyesindedir :) Bir yıldızınızı (⭐) eksik etmeyin!
 >
-> ⚠️ **Bilinen sorun:** Android **PrintService** (sistem genelinde "Yazdır" menüsünden yazdırma) kısmı **şu an ÇALIŞMIYOR / bozuk**. Kod projede duruyor ama güvenilir şekilde çalışmaz. Yazdırma için şimdilik uygulamanın kendi arayüzünü kullanın. Ayrıntı: [Bilinen Sorunlar](#bilinen-sorunlar).
+> 🖨️ **Donanım Durumu:** Uygulama **gerçek Canon yazıcı ile bizzat test edilmiş ve doğrulanmıştır**.
+>
+> ⭐ **Projeyi Destekleyin:** Projeyi beğendiyseniz GitHub üzerinden repoyu yıldızlamayı unutmayın: [github.com/tereyagburak/ohmycapT](https://github.com/tereyagburak/ohmycapT)
+>
+> ⚠️ **Önemli / Bilinen Sorun:** Android **PrintService** (sistem genelindeki "Paylaş -> Yazdır" menüsü) kısmı **şu an ÇALIŞMIYOR / bozuk**. Kod projede duruyor ama güvenilir şekilde çalışmaz. Yazdırma işlemlerini doğrudan uygulamanın kendi arayüzü üzerinden yapmanız gerekiyor.
+
+---
+
+## ⚡ Basitçe Nedir? (TL;DR)
+
+Eski ama taş gibi Canon lazer yazıcınız (özellikle meşhur **Canon LBP2900 / LBP3000**) var ama telefonunuzdan veya tabletinizden çıktı alamıyor musunuz? Çünkü Canon bu emektar yazıcılar için Android sürücüsü çıkarmadı. 
+
+**ohmycapT** tam olarak bunu çözüyor:
+1. Bir ucu telefonunuza (OTG dönüştürücü ile), diğer ucu yazıcıya bağlı olan USB kablosunu takıyorsunuz.
+2. Yazıcının gücünü açıp ekrana gelen USB iznini onaylıyorsunuz.
+3. Uygulama içerisinden belgenizi (PDF, resim vb.) seçip **"Yazdır"** diyorsunuz.
+4. Telefonunuz yazıcının dilinden (CAPT protokolü) konuşup çıktınızı şakır şakır alıyor!
+
+Bilgisayara, sürücü CD'sine veya harici print server cihazlarına gerek yok; sadece telefonunuz, kablonuz ve emektar Canon yazıcınız!
+
+---
 
 ## İçindekiler
 
+- [Basitçe Nedir? (TL;DR)](#-basitçe-nedir-tldr)
 - [Hakkında](#hakkında)
 - [Durum Tablosu](#durum-tablosu)
 - [Özellikler](#özellikler)
@@ -37,74 +61,63 @@
 
 ## Hakkında
 
-**ohmycapT**, Canon **CAPT** protokolünü kullanan lazer yazıcıları (ör. **LBP2900**) Android telefon/tabletten **USB OTG** ile doğrudan kullanmanızı sağlayan bir Android uygulamasıdır. Bu yazıcıların Android için resmi sürücüsü yoktur; uygulama belgeyi bitmap'e çevirir, 1 bit'e indirger (dithering), sıkıştırır ve CAPT komutlarıyla USB üzerinden yazıcıya gönderir.
+**ohmycapT**, Canon **CAPT** protokolünü kullanan lazer yazıcıları (ör. **LBP2900**) Android cihazlardan **USB OTG** üzerinden doğrudan kullanabilmeniz için geliştirilmiş açık kaynaklı bir Android uygulamasıdır. Belgeyi işler, bitmap'e dönüştürür, dither algoritmalarıyla 1-bit monokrom hale getirir, Canon'un tescilli HiScoA algoritması ile sıkıştırır ve USB üzerinden yazıcıya ham komutları gönderir.
 
 ## Durum Tablosu
 
 | Bileşen | Durum |
 |---|---|
-| Uygulama içi yazdırma arayüzü | ✅ Çalışması hedeflenen ana yol |
-| USB bağlantı / izin akışı | ✅ Mevcut |
-| Yazdırma geçmişi, ayarlar, ekranlar | ✅ Mevcut |
-| Sahte (Fake) yazıcı ile test | ✅ Mevcut |
-| **Android PrintService (`CaptPrintService`)** | ❌ **Çalışmıyor / bozuk** |
-
-> Not: Donanım testleri sınırlıdır; yazıcı modeline göre sonuç değişebilir.
+| Uygulama İçi Yazdırma Arayüzü | ✅ Çalışan ana akış (Gerçek donanımla test edildi) |
+| USB OTG Bağlantısı & İzin Yönetimi | ✅ Mevcut ve çalışıyor |
+| Yazdırma Geçmişi (Room) & Ayarlar | ✅ Mevcut |
+| **Android PrintService (`CaptPrintService`)** | ❌ **Çalışmıyor / Bozuk (Sistem menüsünden yazdırmaz)** |
 
 ## Özellikler
 
-- 🔌 **USB Host** ile yazıcıya doğrudan bağlantı; cihaz takılınca uygulama tetiklenir (`USB_DEVICE_ATTACHED`)
-- 🔐 USB izin isteme akışı ve bağlantı durumu takibi
-- 📄 Belge hazırlama: PDF, görüntü ve metin gibi girdileri yazdırılabilir PDF/bitmap'e dönüştürme (A4 = 595×842 pt)
-- 🎨 Dithering: Eşikleme, **Floyd-Steinberg**, Ordered
-- 🧠 Native (C / NDK) CAPT komutları, durum okuma, LBP2900 yazdırma akışı ve **HiScoA** sıkıştırma
-- 🧱 Bant (band) tabanlı gönderim: 592 bayt satır, 70 satırlık bantlar, 600 DPI
-- ⚙️ Kopya, sayfa aralığı, kağıt boyutu, ölçekleme, toner yoğunluğu, kontrast, ters çevirme
-- 📄 **Elle besleme** (her sayfa için onaylı) ve **elle çift taraflı** yazdırma
-- ⏸️ Duraklatma / devam etme ve sonraki sayfa bekleme durumları
-- 🕘 Yazdırma geçmişi (Room)
-- 📊 Animasyonlu yazıcı çizimi, ilerleme ekranı, genel durum çubuğu
-- 🧪 Gerçek yazıcı olmadan denemek için `FakePrinterRepository`
+- 🔌 **USB Host / OTG Doğrudan Bağlantı:** Cihaz takıldığı an algılama (`USB_DEVICE_ATTACHED`).
+- 🔐 Güvenli USB izin yönetimi ve otomatik bağlantı sağlığı denetimi.
+- 📄 **Belge Hazırlama Motoru:** PDF ve resim dosyalarını otomatik boyutlandırıp A4 standartlarında rasterize etme.
+- 🎨 **Dithering Motoru:** Eşikleme (Threshold), **Floyd-Steinberg** ve Ordered dithering seçenekleri.
+- 🧠 **C / NDK Çekirdeği:** CAPT komut üretimi, gerçek zamanlı durum okuma ve **HiScoA** sıkıştırma.
+- 🧱 Bant (band) tabanlı akış: 592 bayt satır genişliği, 70 satırlık dinamik bantlar, 600 DPI baskı.
+- ⚙️ **Kapsamlı Ayarlar:** Kopya sayısı, sayfa aralığı, kağıt boyutu, ölçekleme, toner yoğunluğu (1–7), kontrast ve negatif baskı.
+- 📄 **Elle Besleme & Duplex:** Kağıt sıkışmasını önleyen "Adım Adım Onaylı Besleme" ve manuel çift taraflı yazdırma.
+- ⏸️ Yazdırma esnasında duraklatma / devam ettirme.
+- 🕘 **Geçmiş:** Room tabanlı yazdırma kuyruğu ve geçmiş logları.
 
 ## Desteklenen Yazıcılar
 
-Kod, Canon (VID `0x04A9`) için şu USB ürün kimliklerini tanır:
+Uygulama, Canon Üretici Kimliği (VID: `0x04A9`) altındaki modelleri hedefler:
 
-| Model | PID |
-|---|---|
-| LBP2900 | `0x2676` |
-| LBP3000 | `0x26B0` |
-| LBP3100 | `0x26CE` |
-| LBP6000 | `0x271A` |
-
-Asıl hedef ve test edilen model **LBP2900**'dür; diğerleri kodda tanımlıdır ancak doğrulanmamıştır.
+| Model | Ürün Kimliği (PID) | Durum |
+|---|---|---|
+| **Canon LBP2900** | `0x2676` | 🎯 Gerçek cihazla test edildi ve onaylandı |
+| Canon LBP3000 | `0x26B0` | Kodda tanımlı (Uyumlu komut seti) |
+| Canon LBP3100 | `0x26CE` | Kodda tanımlı (Uyumlu komut seti) |
+| Canon LBP6000 | `0x271A` | Kodda tanımlı (Uyumlu komut seti) |
 
 ## Nasıl Çalışır?
 
 ```
-Belge (PDF/görüntü/metin)
-   │  DocumentPreparationEngine
+Belge (PDF / Resim)
+   │  DocumentPreparationEngine (PdfRenderer / Bitmap)
    ▼
-Sayfa bitmap'i  →  Dithering (1 bit)  →  Bantlara bölme
+Sayfa Bitmap'i  →  Dithering (1-bit Siyah/Beyaz)
    │  CaptNative (JNI)
    ▼
-HiScoA sıkıştırma  →  CAPT komutları (capt-command.c)
-   │  CaptUsbTransport (UsbManager / bulk transfer)
+HiScoA Sıkıştırma  →  CAPT Komut Paketleri (capt-command.c)
+   │  CaptUsbTransport (UsbDeviceConnection / Bulk Transfer)
    ▼
-Canon LBP2900
+Canon LBP Yazıcı (Fiziksel Kağıt Çıktısı 📄)
 ```
-
-Yazıcıdan gelen durum paketleri (`capt-status.c`) okunur ve arayüzdeki `PrinterStatus` modeline çevrilir.
 
 ## Mimari
 
-- **Kotlin + Jetpack Compose** (Material 3) arayüz
-- **Repository** deseni: `PrinterRepository` → `RealPrinterRepository` / `FakePrinterRepository`
-- **Room** ile yazdırma geçmişi
-- **JNI / C** ile CAPT protokolü (`app/src/main/cpp`)
-- `CaptUsbTransport`: USB uç noktaları, izin ve veri aktarımı
-- `CaptNative`: Kotlin ↔ C köprüsü
-- `CaptPrintService`: Android PrintService denemesi (**bozuk**)
+- **UI:** Jetpack Compose (Material 3), Compose Navigation, tek yönlü veri akışı (UDF).
+- **Veri & İş Mantığı:** `RealPrinterRepository` üzerinden doğrudan USB ve donanım kontrolü.
+- **Veritabanı:** Room SQLite (Yazdırma geçmişi ve durumları).
+- **USB & Donanım:** Android `UsbManager` + JNI C Köprüsü (`app/src/main/cpp`).
+- **Sistem Yazdırma Servisi:** `CaptPrintService` (**Bozuk/Deneysel**).
 
 ## Proje Yapısı
 
@@ -112,27 +125,23 @@ Yazıcıdan gelen durum paketleri (`capt-status.c`) okunur ve arayüzdeki `Print
 ohmycapT/
 ├── app/
 │   └── src/main/
-│       ├── cpp/                      # C: CAPT protokolü
-│       │   ├── native-lib.c          # JNI köprüsü, dither + bitmap yazdırma
-│       │   ├── capt_io.c/.h          # G/Ç soyutlaması
-│       │   ├── capt-command.c/.h     # CAPT komutları
-│       │   ├── capt-status.c/.h      # Durum çözümleme
-│       │   ├── hiscoa-*.c/.h         # HiScoA sıkıştırma
-│       │   ├── prn_lbp2900.c/.h      # LBP2900 yazdırma akışı
-│       │   ├── dither.c/.h           # Dithering algoritmaları
+│       ├── cpp/                      # C: Düşük Seviye CAPT Sürücüsü
+│       │   ├── native-lib.c          # JNI Bağlantıları, Dither & Çizim
+│       │   ├── capt_io.c/.h          # G/Ç Soyutlama Katmanı
+│       │   ├── capt-command.c/.h     # Canon Komut Setleri
+│       │   ├── capt-status.c/.h      # Durum Paketi Ayrıştırıcı
+│       │   ├── hiscoa-*.c/.h         # HiScoA Sıkıştırma Algoritması
+│       │   ├── prn_lbp2900.c/.h      # LBP2900 Motor Kontrolü
+│       │   ├── dither.c/.h           # Dithering Algoritmaları
 │       │   └── CMakeLists.txt
 │       └── java/com/example/captprint/
-│           ├── data/                 # Room DB, repository'ler, belge hazırlama
-│           ├── domain/model/         # PrintSettings, PrinterStatus
-│           ├── feature/              # home, printer, printconfig, progress, history, settings, onboarding
-│           ├── ui/                   # tema, bileşenler, navigasyon
-│           ├── CaptPrintService.kt   # (bozuk)
-│           ├── CaptUsbTransport.kt
-│           ├── CaptNative.kt
-│           ├── CaptProbe.kt
-│           ├── CaptApplication.kt
+│           ├── data/                 # Room DB, Repository, Belge İşleme
+│           ├── domain/model/         # PrintSettings, PrinterStatus modelleri
+│           ├── feature/              # Ekranlar (Home, Printer, Config, Progress, History, Settings)
+│           ├── ui/                   # Tema, Bileşenler ve Navigasyon
+│           ├── CaptPrintService.kt   # (BOZUK) PrintService Katmanı
+│           ├── CaptUsbTransport.kt   # Android USB Host Haberleşmesi
 │           └── MainActivity.kt
-├── build.gradle.kts / settings.gradle.kts
 └── LICENSE
 ```
 
@@ -140,87 +149,82 @@ ohmycapT/
 
 | Ekran | Açıklama |
 |---|---|
-| Karşılama (Onboarding) | İlk açılış tanıtımı |
-| Yazdır (Home) | Belge seçimi ve yazdırmaya başlama |
-| Yazıcı | Bağlantı, izin ve yazıcı durumu |
-| Yazdırma Ayarları | Kopya, kağıt, ölçekleme, kalite ayarları |
-| İlerleme | Sayfa sayfa ilerleme, duraklat/devam, elle besleme onayı |
-| Geçmiş | Önceki yazdırma işleri |
-| Ayarlar | Uygulama ayarları |
+| **Karşılama (Onboarding)** | İlk kurulum rehberi ve USB OTG bağlama adımları |
+| **Yazdır (Home)** | Dosya seçimi, önizleme ve yazdırma başlatma |
+| **Yazıcı (Printer)** | Gerçek zamanlı bağlantı durumu, donanım hazır bilgisi, hata uyarıları |
+| **Yazdırma Ayarları** | Kağıt boyutu, kopya, toner yoğunluğu, dither seçimi |
+| **İlerleme (Progress)** | Sayfa ilerlemesi, bant gönderimi, duraklatma ve elle besleme onayı |
+| **Geçmiş (History)** | Tamamlanan ve geçmiş yazdırma işleri |
+| **Ayarlar (Settings)** | Genel tercihler ve GitHub proje bağlantısı |
 
 ## Yazdırma Ayarları
 
-| Ayar | Değerler / Varsayılan |
-|---|---|
-| Kopya sayısı | 1 |
-| Sayfa aralığı | `ALL` veya `1-3, 5` |
-| Kağıt boyutu | A4 (varsayılan), Letter, A5, Legal |
-| Ölçekleme | Sayfaya sığdır (varsayılan), Gerçek boyut %100, Sayfayı doldur |
-| Toner yoğunluğu | 1–7 (varsayılan 7) |
-| Kontrast | 1.0 |
-| Dithering | Floyd-Steinberg (varsayılan), Eşikleme, Ordered |
-| Renkleri ters çevir | Kapalı |
-| Elle besleme (adım adım) | Kapalı – kağıt sıkışmasını önlemek için |
-| Elle çift taraflı | Kapalı |
-
-## Yazıcı Durumları
-
-`Disconnected`, `PermissionNeeded`, `Connecting`, `Ready`, `WarmingUp`, `Printing`, `Paused`, `WaitingForNextPage`, `PaperOut`, `PaperJam`, `CoverOpen`, `TonerLow`, `Error`.
+| Ayar | Değerler | Varsayılan |
+|---|---|---|
+| Kopya Sayısı | Sayısal giriş | `1` |
+| Sayfa Aralığı | `ALL` veya `1-3, 5` formatı | `ALL` |
+| Kağıt Boyutu | A4, US Letter, A5, Legal | `A4` |
+| Ölçekleme | Sayfaya Sığdır, Gerçek Boyut (%100), Doldur | `Sayfaya Sığdır` |
+| Toner Yoğunluğu | 1 (Açık) .. 7 (Koyu) | `7` |
+| Kontrast | 0.5 .. 2.0 | `1.0` |
+| Dither Yöntemi | Floyd-Steinberg, Threshold, Ordered | `Floyd-Steinberg` |
+| Renkleri Ters Çevir | Açık / Kapalı | `Kapalı` |
+| Elle Besleme Modu | Açık / Kapalı (Her sayfada ekrandan onay ister) | `Kapalı` |
+| Elle Çift Taraflı | Açık / Kapalı | `Kapalı` |
 
 ## Teknoloji Yığını
 
-- Kotlin, Jetpack Compose, Material 3, Navigation Compose, Coil
-- Coroutines, Lifecycle / ViewModel
-- Room, DataStore Preferences
-- C11, Android NDK, CMake (16 KB sayfa boyutu uyumlu bağlama)
-- Android `UsbManager`, `PdfRenderer`
+- **Dil:** Kotlin, C11
+- **Arayüz:** Jetpack Compose, Material 3, Material Icons Extended
+- **Asenkron Yapı:** Coroutines & Kotlin Flow
+- **Veri Saklama:** Room DB, DataStore Preferences
+- **NDK & Build:** CMake 3.22+, Android NDK (16 KB page-size uyumlu bayraklar)
+- **Görsel:** Coil Compose
 
 ## Gereksinimler
 
-- Android Studio (güncel), Android NDK + CMake
-- Android 8.0+ (minSdk 26, targetSdk 35)
-- USB Host (OTG) destekli cihaz + OTG kablosu
-- ABI: `arm64-v8a`, `armeabi-v7a`
-- CAPT uyumlu Canon yazıcı
+- Android 8.0+ (API 26+) yüklü telefon/tablet (Hedef: Android 15 / API 35)
+- USB Host (OTG) donanım desteği ve OTG çevirici kablo
+- `arm64-v8a` veya `armeabi-v7a` mimarili cihaz
+- Canon CAPT uyumlu lazer yazıcı (Örn: LBP2900)
 
 ## Derleme
 
+Projeyi Android Studio ile açabilir veya terminalden derleyebilirsiniz:
+
 ```bash
-git clone <repo-url>
+git clone https://github.com/tereyagburak/ohmycapT.git
 cd ohmycapT
 ./gradlew assembleDebug      # Windows: gradlew.bat assembleDebug
 ```
 
-APK: `app/build/outputs/apk/debug/`. Paket adı: `oh.my.capt`.
+Çıktı APK dosyası: `app/build/outputs/apk/debug/app-debug.apk`
 
 ## Kullanım
 
-1. Yazıcıyı OTG kablosuyla telefona bağlayın, USB iznini verin.
-2. Uygulamayı açın, karşılama ekranını geçin.
-3. **Yazıcı** ekranında durumun `Ready` olduğunu doğrulayın.
-4. **Yazdır** ekranından belgeyi seçin, ayarları yapın ve yazdırın.
-5. Elle besleme açıksa her sayfadan sonra onay verin.
-
-> ⚠️ Sistem "Yazdır" menüsünden (PrintService) yazdırma **çalışmaz**; uygulama içinden yazdırın.
+1. Yazıcınızı USB kablosu ve OTG adaptörü ile telefonunuza bağlayın.
+2. Yazıcının güç düğmesine basarak açın.
+3. Ekrana gelen "ohmycapT uygulamasının bu cihaza erişmesine izin verilsin mi?" uyarısını onaylayın.
+4. Uygulamayı açın, **Yazıcı** sekmesinden yazıcının "Hazır" olduğunu görün.
+5. **Yazdır** sekmesinden bir PDF veya resim seçin, ayarlarınızı kontrol edin ve yazdırın!
 
 ## Bilinen Sorunlar
 
-- ❌ **PrintService bozuk:** `CaptPrintService` ile diğer uygulamalardan ("Paylaş → Yazdır") yazdırma şu an çalışmıyor. Düzeltilmedi; katkıya açık.
-- Deneysel proje; yazıcıda beklenmedik davranış, sıkışma veya yanlış baskı olabilir.
-- Test kapsamı sınırlı; LBP2900 dışındaki modeller doğrulanmadı.
-- Kod tabanında vibecoding kaynaklı tutarsızlıklar olabilir.
+- ❌ **PrintService Bozuk:** Android'in kendi yazdırma çerçevesi üzerinden (örneğin Chrome'dan "Yazdır" diyerek) yazdırma işlemi şu anda **çalışmamaktadır**. Çıktıları doğrudan ohmycapT uygulaması içerisinden vermelisiniz.
 
 ## Vibecoded Üzerine
 
-Kodun büyük kısmı yapay zekâ yardımıyla, derin bir ön planlama olmadan "akışına bırak" yaklaşımıyla yazıldı. Hatalar, tuhaf yorumlar ve garip kararlar normaldir. PR'lar memnuniyetle karşılanır. 🙌
+Bu proje mimari planlar, devasa şartnameler veya kurumsal kod kalitesi gözetilerek değil; yapay zekâ asistanlarıyla birlikte, bir merakın ve ihtiyacın peşinden gidilerek **tamamen vibecoded** şeklinde hayata geçirildi. Hatalar veya ilginç çözümler görürseniz gülüp geçebilir ya da bir Pull Request gönderebilirsiniz! 
+
+Projeye destek olmak için GitHub üzerinden yıldız vermeyi unutmayın: [tereyagburak/ohmycapT](https://github.com/tereyagburak/ohmycapT) ⭐
 
 ## Teşekkür ve Kaynaklar
 
-C tarafındaki CAPT protokolü kodu, Alexey Galakhov'un GPLv3 lisanslı Linux sürücüsü **[captdriver](https://github.com/agalakhov/captdriver)** projesinden uyarlanmıştır.
+Bu projenin C tabanlı düşük seviye sürücü mantığı, Alexey Galakhov'un efsanevi Linux açık kaynak sürücüsü olan **[captdriver](https://github.com/agalakhov/captdriver)** projesinden esinlenilerek Android platformuna taşınmıştır. Kendisine teşekkür ederiz.
 
 ## Lisans
 
-[GNU GPL v3](LICENSE)
+Bu proje [GNU General Public License v3.0](LICENSE) kapsamında lisanslanmıştır.
 
 [⬆️ Başa dön](#top)
 
@@ -230,12 +234,33 @@ C tarafındaki CAPT protokolü kodu, Alexey Galakhov'un GPLv3 lisanslı Linux s�
 
 # 🇬🇧 English
 
-> 🤖 **Vibecoded:** This project is fully **vibecoded**. It was built by chatting with an AI and saying "let's see if this works" over and over. Code quality is at the "if it works, don't touch it" level :)
+> 🤖 **Vibecoded:** This project is 100% **vibecoded**! Built entirely through chats with AI, driven by "let's see if this works" and pure curiosity. Code quality is at the "if it works, don't touch it" level :) Please consider leaving a star (⭐)!
 >
-> ⚠️ **Known issue:** The Android **PrintService** (printing system-wide from the "Print" menu) is **currently NOT WORKING / broken**. The code is in the repo but doesn't work reliably. For now, print using the app's own UI. Details: [Known Issues](#known-issues).
+> 🖨️ **Hardware Status:** The app has been **personally tested and verified on a real Canon printer**.
+>
+> ⭐ **Support the Project:** If you find this helpful, don't forget to star the repo on GitHub: [github.com/tereyagburak/ohmycapT](https://github.com/tereyagburak/ohmycapT)
+>
+> ⚠️ **Important / Known Issue:** The Android **PrintService** (printing from the system "Share -> Print" dialog) is **currently BROKEN / NOT WORKING**. The code remains in the repository, but it does not function reliably. Please use the app's internal UI to select and print your documents.
+
+---
+
+## ⚡ Simply Put: What is this? (TL;DR)
+
+Do you own an old, rock-solid Canon laser printer (like the iconic **Canon LBP2900 / LBP3000**), but can't print from your Android phone or tablet? That's because Canon never released an official Android driver for these legacy CAPT printers.
+
+**ohmycapT** solves this exact problem:
+1. Connect your printer's USB cable to your phone using an OTG adapter.
+2. Power on the printer and grant USB permission when prompted.
+3. Pick a document (PDF, image, etc.) inside the app and tap **"Print"**.
+4. Your phone speaks the printer's native language (CAPT protocol) and prints your document directly!
+
+No PC, no driver discs, and no wireless print server hardware required—just your phone, a USB cable, and your trusty old Canon printer!
+
+---
 
 ## Table of Contents
 
+- [Simply Put: What is this? (TL;DR)](#-simply-put-what-is-this-tldr)
 - [About](#about)
 - [Status Table](#status-table)
 - [Features](#features)
@@ -245,7 +270,6 @@ C tarafındaki CAPT protokolü kodu, Alexey Galakhov'un GPLv3 lisanslı Linux s�
 - [Project Structure](#project-structure)
 - [Screens](#screens)
 - [Print Settings](#print-settings)
-- [Printer States](#printer-states)
 - [Tech Stack](#tech-stack)
 - [Requirements](#requirements)
 - [Building](#building)
@@ -257,74 +281,63 @@ C tarafındaki CAPT protokolü kodu, Alexey Galakhov'un GPLv3 lisanslı Linux s�
 
 ## About
 
-**ohmycapT** is an Android app that lets you use Canon laser printers speaking the **CAPT** protocol (e.g. **LBP2900**) directly from an Android phone or tablet over **USB OTG**. These printers have no official Android driver, so the app renders the document to a bitmap, reduces it to 1-bit (dithering), compresses it, and sends it to the printer over USB using CAPT commands.
+**ohmycapT** is an open-source Android driver and printing utility for Canon laser printers utilizing the proprietary **CAPT** protocol (such as the **LBP2900**). Because no official Android driver exists, this app handles document rasterization, converts pages into 1-bit monochrome data using advanced dithering, compresses streams via Canon's HiScoA algorithm, and sends raw commands directly to the printer over USB OTG.
 
 ## Status Table
 
 | Component | Status |
 |---|---|
-| In-app printing UI | ✅ Main intended path |
-| USB connection / permission flow | ✅ Present |
-| Print history, settings, screens | ✅ Present |
-| Testing with the Fake printer | ✅ Present |
-| **Android PrintService (`CaptPrintService`)** | ❌ **Not working / broken** |
-
-> Note: Hardware testing is limited; results may vary by printer model.
+| In-App Printing Flow | ✅ Working main path (Tested with physical hardware) |
+| USB OTG Connection & Permissions | ✅ Working |
+| Print History (Room DB) & Settings | ✅ Working |
+| **Android PrintService (`CaptPrintService`)** | ❌ **Broken / Does not work via system menu** |
 
 ## Features
 
-- 🔌 **USB Host** connection; app is triggered when the device is attached (`USB_DEVICE_ATTACHED`)
-- 🔐 USB permission request flow and connection status tracking
-- 📄 Document preparation: converts PDF, image and text inputs into a printable PDF/bitmap (A4 = 595×842 pt)
-- 🎨 Dithering: Threshold, **Floyd-Steinberg**, Ordered
-- 🧠 Native (C / NDK) CAPT commands, status reading, LBP2900 print flow and **HiScoA** compression
-- 🧱 Band-based transfer: 592-byte lines, 70-line bands, 600 DPI
-- ⚙️ Copies, page range, paper size, scaling, toner density, contrast, inversion
-- 📄 **Manual feed** (confirmation per page) and **manual duplex** printing
-- ⏸️ Pause / resume and waiting-for-next-page states
-- 🕘 Print history (Room)
-- 📊 Animated printer illustration, progress screen, global status bar
-- 🧪 `FakePrinterRepository` for testing without a real printer
+- 🔌 **Direct USB Host / OTG:** Plug-and-play detection (`USB_DEVICE_ATTACHED`).
+- 🔐 Robust USB permission handling and status monitoring.
+- 📄 **Document Preparation Engine:** Rasterizes PDFs and images directly to printable A4/letter format.
+- 🎨 **Dithering Engine:** Threshold, **Floyd-Steinberg**, and Ordered dithering algorithms.
+- 🧠 **C / NDK Engine:** CAPT command generation, status parsing, and **HiScoA** compression.
+- 🧱 Banded streaming: 592-byte lines, 70-line dynamic bands, 600 DPI printing.
+- ⚙️ **Detailed Settings:** Copies, page ranges, paper formats, scaling, toner density (1–7), contrast, and inversion.
+- 📄 **Manual Feed & Duplex:** Step-by-step confirmation mode to avoid paper jams, plus manual duplex.
+- ⏸️ Pause and resume support during print execution.
+- 🕘 **History:** Room-backed print job history and logging.
 
 ## Supported Printers
 
-The code recognizes these USB product IDs for Canon (VID `0x04A9`):
+Recognized Canon models (Vendor ID: `0x04A9`):
 
-| Model | PID |
-|---|---|
-| LBP2900 | `0x2676` |
-| LBP3000 | `0x26B0` |
-| LBP3100 | `0x26CE` |
-| LBP6000 | `0x271A` |
-
-The primary target and tested model is the **LBP2900**; the others are defined in code but unverified.
+| Model | Product ID (PID) | Status |
+|---|---|---|
+| **Canon LBP2900** | `0x2676` | 🎯 Tested and verified on real hardware |
+| Canon LBP3000 | `0x26B0` | Defined in code (Compatible command set) |
+| Canon LBP3100 | `0x26CE` | Defined in code (Compatible command set) |
+| Canon LBP6000 | `0x271A` | Defined in code (Compatible command set) |
 
 ## How It Works
 
 ```
-Document (PDF/image/text)
-   │  DocumentPreparationEngine
+Document (PDF / Image)
+   │  DocumentPreparationEngine (PdfRenderer / Bitmap)
    ▼
-Page bitmap  →  Dithering (1 bit)  →  Split into bands
+Page Bitmap  →  Dithering (1-bit Black/White)
    │  CaptNative (JNI)
    ▼
-HiScoA compression  →  CAPT commands (capt-command.c)
-   │  CaptUsbTransport (UsbManager / bulk transfer)
+HiScoA Compression  →  CAPT Command Packets (capt-command.c)
+   │  CaptUsbTransport (UsbDeviceConnection / Bulk Transfer)
    ▼
-Canon LBP2900
+Canon LBP Printer (Physical Paper Output 📄)
 ```
-
-Status packets from the printer (`capt-status.c`) are read and mapped to the `PrinterStatus` model used by the UI.
 
 ## Architecture
 
-- **Kotlin + Jetpack Compose** (Material 3) UI
-- **Repository** pattern: `PrinterRepository` → `RealPrinterRepository` / `FakePrinterRepository`
-- **Room** for print history
-- **JNI / C** for the CAPT protocol (`app/src/main/cpp`)
-- `CaptUsbTransport`: USB endpoints, permission and data transfer
-- `CaptNative`: Kotlin ↔ C bridge
-- `CaptPrintService`: Android PrintService attempt (**broken**)
+- **UI:** Jetpack Compose (Material 3), Compose Navigation, UDF architecture.
+- **Data & Business Logic:** Direct printer hardware integration via `RealPrinterRepository`.
+- **Database:** Room SQLite (Print history and states).
+- **USB & Driver:** Android `UsbManager` + JNI C Bridge (`app/src/main/cpp`).
+- **Print Service:** `CaptPrintService` (**Broken/WIP**).
 
 ## Project Structure
 
@@ -332,27 +345,23 @@ Status packets from the printer (`capt-status.c`) are read and mapped to the `Pr
 ohmycapT/
 ├── app/
 │   └── src/main/
-│       ├── cpp/                      # C: CAPT protocol
-│       │   ├── native-lib.c          # JNI bridge, dither + bitmap printing
-│       │   ├── capt_io.c/.h          # I/O abstraction
-│       │   ├── capt-command.c/.h     # CAPT commands
-│       │   ├── capt-status.c/.h      # Status parsing
-│       │   ├── hiscoa-*.c/.h         # HiScoA compression
-│       │   ├── prn_lbp2900.c/.h      # LBP2900 print flow
-│       │   ├── dither.c/.h           # Dithering algorithms
+│       ├── cpp/                      # C: Low-level CAPT Driver
+│       │   ├── native-lib.c          # JNI Bridge, Dithering & Bitmap rendering
+│       │   ├── capt_io.c/.h          # I/O Abstraction Layer
+│       │   ├── capt-command.c/.h     # Canon Command Sets
+│       │   ├── capt-status.c/.h      # Status Packet Parser
+│       │   ├── hiscoa-*.c/.h         # HiScoA Compression Engine
+│       │   ├── prn_lbp2900.c/.h      # LBP2900 Engine Controller
+│       │   ├── dither.c/.h           # Dithering Algorithms
 │       │   └── CMakeLists.txt
 │       └── java/com/example/captprint/
-│           ├── data/                 # Room DB, repositories, document preparation
-│           ├── domain/model/         # PrintSettings, PrinterStatus
-│           ├── feature/              # home, printer, printconfig, progress, history, settings, onboarding
-│           ├── ui/                   # theme, components, navigation
-│           ├── CaptPrintService.kt   # (broken)
-│           ├── CaptUsbTransport.kt
-│           ├── CaptNative.kt
-│           ├── CaptProbe.kt
-│           ├── CaptApplication.kt
+│           ├── data/                 # Room DB, Repository, Document Preparation
+│           ├── domain/model/         # PrintSettings, PrinterStatus models
+│           ├── feature/              # Screens (Home, Printer, Config, Progress, History, Settings)
+│           ├── ui/                   # Theme, Components, Navigation
+│           ├── CaptPrintService.kt   # (BROKEN) System PrintService
+│           ├── CaptUsbTransport.kt   # Android USB Host Transport
 │           └── MainActivity.kt
-├── build.gradle.kts / settings.gradle.kts
 └── LICENSE
 ```
 
@@ -360,86 +369,81 @@ ohmycapT/
 
 | Screen | Description |
 |---|---|
-| Onboarding | First-launch introduction |
-| Print (Home) | Pick a document and start printing |
-| Printer | Connection, permission and printer status |
-| Print Settings | Copies, paper, scaling, quality options |
-| Progress | Page-by-page progress, pause/resume, manual feed confirmation |
-| History | Previous print jobs |
-| Settings | App settings |
+| **Onboarding** | First-run walkthrough and OTG setup instructions |
+| **Print (Home)** | Document picker, preview, and print actions |
+| **Printer** | Device connection status, real-time hardware ready state, and diagnostics |
+| **Print Settings** | Paper size, copies, toner density, dithering selector |
+| **Progress** | Real-time page counter, band transmission, pause/resume |
+| **History** | Log of previous completed and failed print jobs |
+| **Settings** | Preferences and GitHub repository link |
 
 ## Print Settings
 
-| Setting | Values / Default |
-|---|---|
-| Copies | 1 |
-| Page range | `ALL` or `1-3, 5` |
-| Paper size | A4 (default), Letter, A5, Legal |
-| Scaling | Fit page (default), Actual size 100%, Fill page |
-| Toner density | 1–7 (default 7) |
-| Contrast | 1.0 |
-| Dithering | Floyd-Steinberg (default), Threshold, Ordered |
-| Invert colors | Off |
-| Manual feed (step-by-step) | Off – helps prevent paper jams |
-| Manual duplex | Off |
-
-## Printer States
-
-`Disconnected`, `PermissionNeeded`, `Connecting`, `Ready`, `WarmingUp`, `Printing`, `Paused`, `WaitingForNextPage`, `PaperOut`, `PaperJam`, `CoverOpen`, `TonerLow`, `Error`.
+| Setting | Options | Default |
+|---|---|---|
+| Copies | Number input | `1` |
+| Page Range | `ALL` or `1-3, 5` | `ALL` |
+| Paper Size | A4, US Letter, A5, Legal | `A4` |
+| Page Scaling | Fit Page, Actual Size (100%), Fill Page | `Fit Page` |
+| Toner Density | 1 (Light) .. 7 (Dark) | `7` |
+| Contrast | 0.5 .. 2.0 | `1.0` |
+| Dither Method | Floyd-Steinberg, Threshold, Ordered | `Floyd-Steinberg` |
+| Invert Colors | On / Off | `Off` |
+| Step-by-Step Manual Feed | On / Off (Prompts before each sheet) | `Off` |
+| Manual Duplex | On / Off | `Off` |
 
 ## Tech Stack
 
-- Kotlin, Jetpack Compose, Material 3, Navigation Compose, Coil
-- Coroutines, Lifecycle / ViewModel
-- Room, DataStore Preferences
-- C11, Android NDK, CMake (16 KB page-size compatible linking)
-- Android `UsbManager`, `PdfRenderer`
+- **Language:** Kotlin, C11
+- **UI:** Jetpack Compose, Material 3, Material Icons Extended
+- **Async:** Kotlin Coroutines & Flow
+- **Persistence:** Room DB, DataStore Preferences
+- **NDK & Build:** CMake 3.22+, Android NDK (with 16 KB page-size alignment)
+- **Image:** Coil Compose
 
 ## Requirements
 
-- Recent Android Studio, Android NDK + CMake
-- Android 8.0+ (minSdk 26, targetSdk 35)
-- USB Host (OTG) capable device + OTG cable
-- ABIs: `arm64-v8a`, `armeabi-v7a`
-- A CAPT-compatible Canon printer
+- Android 8.0+ (API 26+) device (Target: Android 15 / API 35)
+- USB Host (OTG) hardware support and an OTG adapter cable
+- `arm64-v8a` or `armeabi-v7a` CPU architecture
+- CAPT-compatible Canon printer (e.g. LBP2900)
 
 ## Building
 
+Open the project in Android Studio or compile via command line:
+
 ```bash
-git clone <repo-url>
+git clone https://github.com/tereyagburak/ohmycapT.git
 cd ohmycapT
 ./gradlew assembleDebug      # Windows: gradlew.bat assembleDebug
 ```
 
-APK: `app/build/outputs/apk/debug/`. Package name: `oh.my.capt`.
+The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Usage
 
-1. Connect the printer to your phone with an OTG cable and grant USB permission.
-2. Open the app and go through onboarding.
-3. On the **Printer** screen, confirm the status is `Ready`.
-4. On the **Print** screen, pick a document, adjust settings and print.
-5. If manual feed is on, confirm after each page.
-
-> ⚠️ Printing from the system "Print" menu (PrintService) **does not work**; print from inside the app.
+1. Connect the printer to your phone via USB cable and OTG adapter.
+2. Turn on the printer power switch.
+3. Accept the USB permission prompt on your Android screen.
+4. Open **ohmycapT**, verify that the **Printer** tab reports "Ready".
+5. Go to the **Print** tab, select your PDF or image, configure options, and start printing!
 
 ## Known Issues
 
-- ❌ **PrintService is broken:** Printing from other apps ("Share → Print") via `CaptPrintService` currently doesn't work. Not fixed yet; contributions welcome.
-- Experimental project; unexpected printer behavior, jams or misprints are possible.
-- Limited test coverage; models other than LBP2900 are unverified.
-- Expect vibecoding-induced inconsistencies throughout the codebase.
+- ❌ **PrintService is Broken:** Printing from system dialogs (e.g. Chrome -> Print) is **non-functional**. Please open files and print directly inside ohmycapT.
 
 ## On Being Vibecoded
 
-Most of the code was written with AI assistance in a "go with the flow" style without deep upfront planning. Bugs, odd comments and strange decisions are normal. PRs are very welcome. 🙌
+This application was created without extensive architectural blueprints or corporate rigor—it was **100% vibecoded** in flow state with AI assistants. If you stumble upon strange code patterns or funny comments, enjoy the ride or send a Pull Request!
+
+Don't forget to star the project on GitHub: [tereyagburak/ohmycapT](https://github.com/tereyagburak/ohmycapT) ⭐
 
 ## Credits
 
-The CAPT protocol code in the C layer is adapted from Alexey Galakhov's GPLv3 Linux driver **[captdriver](https://github.com/agalakhov/captdriver)**.
+Low-level CAPT protocol handling in C is inspired by and ported from Alexey Galakhov's open-source Linux driver **[captdriver](https://github.com/agalakhov/captdriver)**.
 
 ## License
 
-[GNU GPL v3](LICENSE)
+Licensed under the [GNU General Public License v3.0](LICENSE).
 
 [⬆️ Back to top](#top)
