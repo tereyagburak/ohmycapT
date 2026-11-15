@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Canon LBP2900 / LBP3000 / LBP3100 / LBP6000 ve Standart USB Yazıcı Sınıfı Filtreleri -->
+<resources>
+    <!-- Canon LBP-2900 / LBP-3000 (VID: 0x04A9 = 1193, PID: 0x2676 = 9846) -->
+    <usb-device vendor-id="1193" product-id="9846" />
+
+    <!-- Canon LBP-3000 (Alternatif PID: 0x26B0 = 9904) -->
+    <usb-device vendor-id="1193" product-id="9904" />
+
+    <!-- Canon LBP-3100 (VID: 0x04A9 = 1193, PID: 0x26CE = 9934) -->
+    <usb-device vendor-id="1193" product-id="9934" />
+
+    <!-- Canon LBP-6000 (VID: 0x04A9 = 1193, PID: 0x271A = 10010) -->
+    <usb-device vendor-id="1193" product-id="10010" />
+
+    <!-- Genel USB Yazıcı Sınıfı (USB Class 7: Printers) -->
+    <usb-device class="7" />
+</resources>

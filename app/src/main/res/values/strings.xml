@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ohmycapT</string>
+    <string name="app_subtitle">Canon LBP2900 / LBP3000 USB Host</string>
+
+    <!-- Eski XML Uyumluluk Stringleri -->
+    <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_console">Konsol</string>
+    <string name="status_connected">Bağlı &amp; Hazır</string>
+    <string name="status_not_connected">Bağlı Değil</string>
+    <string name="printer_searching">Yazıcı aranıyor&#8230;</string>
+    <string name="print_service_title">Android Sistem Yazdırma Servisi</string>
+    <string name="cancel">İptal</string>
+    <string name="clear">Temizle</string>
+    <string name="copy">Kopyala</string>
+    <string name="console_initial">[CAPT Driver Başlatıldı]\n</string>
+
+    <!-- Navigasyon Sekmeleri -->
+    <string name="nav_print">Yazdır</string>
+    <string name="nav_printer">Yazıcı</string>
+    <string name="nav_history">Geçmiş</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Onboarding Ekranı -->
+    <string name="onboarding_title_1">Canon LBP Android Sürücüsü</string>
+    <string name="onboarding_desc_1">LBP2900 ve LBP3000 yazıcınızı doğrudan telefonunuza bağlayın, PDF ve fotoğraflarınızı kolayca basın.</string>
+    <string name="onboarding_title_2">OTG Kablosu ile Bağlayın</string>
+    <string name="onboarding_desc_2">Yazıcınızın USB kablosunu OTG dönüştürücü ile telefonunuza takın ve yazıcının açık olduğundan emin olun.</string>
+    <string name="onboarding_title_3">USB İzni Verin ve Başlayın</string>
+    <string name="onboarding_desc_3">Ekrana gelen USB erişim iznini onaylayarak sürücüyü hemen kullanmaya başlayabilirsiniz.</string>
+    <string name="btn_skip">Atla</string>
+    <string name="btn_next">İleri</string>
+    <string name="btn_start">Başla</string>
+
+    <!-- Ayarlar Sekmesi -->
+    <string name="settings_title_defaults">Yazdırma Varsayılanları</string>
+    <string name="settings_title_appearance">Görünüm</string>
+    <string name="settings_theme_system">Sistem Teması</string>
+    <string name="settings_theme_light">Açık Tema</string>
+    <string name="settings_theme_dark">Koyu Tema</string>
+    <string name="settings_developer_title">Geliştirici Seçenekleri</string>
+    <string name="settings_use_fake_repo">Simülatör (Fake Printer) Kullan</string>
+    <string name="settings_use_fake_desc">Fiziksel yazıcı olmadan tüm yazdırma ve hata durumlarını simüle eder.</string>
+    <string name="settings_about_title">Hakkında</string>
+    <string name="settings_about_desc">Canon LBP2900 / LBP3000 Açık Kaynak Android Yazıcı Sürücüsü (captdriver).</string>
+    <string name="toast_dev_unlocked">Geliştirici modu etkinleştirildi!</string>
+
+    <!-- Geçmiş Sekmesi -->
+    <string name="tab_queue">Kuyruk</string>
+    <string name="tab_history_sub">Geçmiş</string>
+    <string name="queue_empty_title">Kuyruk Boş</string>
+    <string name="queue_empty_desc">Bekleyen veya aktif yazdırma işi bulunmuyor.</string>
+    <string name="history_empty_title">Yazdırma Geçmişi Boş</string>
+    <string name="history_empty_desc">Yazdırdığınız belgeler burada listelenecek.</string>
+    <string name="action_clear_history">Geçmişi Temizle</string>
+    <string name="dialog_clear_history_title">Geçmişi Temizle?</string>
+    <string name="dialog_clear_history_desc">Tüm yazdırma kayıtları silinecek. Bu işlem geri alınamaz.</string>
+    <string name="btn_delete">Sil</string>
+
+    <!-- Yazdırma İlerleme ve Tamamlama Ekranı -->
+    <string name="print_progress_title">Yazdırılıyor</string>
+    <string name="print_completed_title">Yazdırma Başarıyla Tamamlandı!</string>
+    <string name="print_completed_desc">Tüm sayfalar yazıcıya başarıyla aktarıldı.</string>
+    <string name="btn_done">Tamam</string>
+    <string name="btn_reprint">Tekrar Yazdır</string>
+    <string name="btn_approve_next_page">Sonraki Sayfayı Yazdır</string>
+    <string name="waiting_sheet_msg">%1$d. sayfa basıldı. Lütfen tepsiye yeni kağıt koyup onaylayın.</string>
+
+    <!-- Yazdırma Ayar Ekranı -->
+    <string name="tab_preview">Önizleme</string>
+    <string name="tab_settings_sub">Ayarlar</string>
+    <string name="btn_print_now">Yazdır</string>
+    <string name="copies_count">Kopya Sayısı</string>
+    <string name="page_range">Sayfa Aralığı</string>
+    <string name="paper_size">Kağıt Boyutu</string>
+    <string name="page_scaling">Ölçekleme</string>
+    <string name="toner_density_slider">Yoğunluk / Koyuluk</string>
+    <string name="dither_method_title">Dönüşüm Yöntemi (Dither)</string>
+    <string name="dither_floyd">Floyd-Steinberg (Fotoğraflar için önerilir)</string>
+    <string name="dither_threshold">Eşik Değeri (Metinler için önerilir)</string>
+    <string name="invert_colors">Renkleri Ters Çevir (Negatif)</string>
+    <string name="manual_feed_step_by_step">Tek Tek Yazdır (Kağıt Sıkışmasını Önle)</string>
+    <string name="manual_feed_desc">Her sayfadan sonra duraklayıp sonraki kağıt için sizden onay bekler.</string>
+    <string name="page_counter_preview">Sayfa %1$d / %2$d</string>
+
+    <!-- Yazıcı Alt Sekmeleri -->
+    <string name="tab_status">Durum</string>
+    <string name="tab_maintenance">Bakım</string>
+    <string name="tab_info">Bilgi</string>
+
+    <!-- Yazıcı Durum Sekmesi -->
+    <string name="printer_model_title">Canon LBP2900</string>
+    <string name="printer_troubleshoot_title">Sorun Giderme Rehberi</string>
+    <string name="action_print_test_page">Test Sayfası Yazdır</string>
+    <string name="action_query_status">Donanım Durumu Sorgula</string>
+    <string name="action_disconnect">Bağlantıyı Kes</string>
+    <string name="action_reconnect">Yeniden Bağlan</string>
+    <string name="hardware_status_title">Donanım Durumu (0xA0A8)</string>
+    <string name="paper_status_ok">Kağıt Var</string>
+    <string name="buffer_status_ok">Tampon Normal</string>
+
+    <!-- Yazıcı Bilgi Sekmesi -->
+    <string name="info_connection_type">Bağlantı Türü: USB OTG Bulk Transfer</string>
+    <string name="info_driver_version">Sürücü: captdriver (Hi-SCoA / 600 DPI)</string>
+    <string name="info_app_version">Uygulama Sürümü: 1.0 (ohmycapT)</string>
+    <string name="info_toner_support">Toner Seviyesi: Bu yazıcı mekanik kartuşlu olduğundan seviye bilgisi vermiyor.</string>
+    <string name="action_share_diagnostics">Tanı Raporunu Paylaş</string>
+
+    <!-- Sorun Giderme Sihirbazı -->
+    <string name="faq_q1">Yazıcı bağlanmıyor veya algılanmıyor</string>
+    <string name="faq_a1">1. USB OTG adaptörünün telefona tam oturduğundan emin olun.\n2. Yazıcının güç kablosunu kontrol edip açın.\n3. Android ayarlarından OTG desteğinin açık olduğunu doğrulayın.</string>
+    <string name="faq_q2">Çıktı tamamen beyaz veya boş çıkıyor</string>
+    <string name="faq_a2">1. Toner kartuşunun koruyucu bandının çekildiğinden emin olun.\n2. Yazıcı tamburunun (drum) döndüğünü kontrol edin.</string>
+    <string name="faq_q3">Kağıt çekilmiyor veya sıkışıyor</string>
+    <string name="faq_a3">1. Tepsiye tek seferde çok fazla kağıt koymayın.\n2. Kağıt patenlerini hafif nemli bezle temizleyin.\n3. Yazdırma ayarlarından \'Tek Tek Yazdır\' modunu açın.</string>
+
+    <!-- Durum Şeridi & Durumlar -->
+    <string name="status_disconnected">Bağlı Değil</string>
+    <string name="status_permission_needed">İzin Bekleniyor</string>
+    <string name="status_connecting">Bağlanıyor&#8230;</string>
+    <string name="status_ready">Yazıcı Hazır</string>
+    <string name="status_warming_up">Isınıyor&#8230;</string>
+    <string name="status_printing">Yazdırılıyor</string>
+    <string name="status_waiting_next_page">Sonraki Kağıt Bekleniyor</string>
+    <string name="status_paper_out">Kağıt Yok</string>
+    <string name="status_paper_jam">Kağıt Sıkıştı</string>
+    <string name="status_cover_open">Kapak Açık</string>
+    <string name="status_toner_low">Toner Az</string>
+    <string name="status_error">Yazıcı Hatası</string>
+
+    <string name="btn_connect">Bağlan</string>
+    <string name="btn_retry">Tekrar Dene</string>
+    <string name="btn_cancel">İptal</string>
+
+    <!-- Hata Mesajları -->
+    <string name="error_printer_not_found">Yazıcı algılanmadı. OTG kablosunu ve yazıcının açık olduğunu kontrol et.</string>
+    <string name="error_permission_denied">USB erişimi için izin gerekli.</string>
+    <string name="error_paper_out_desc">Tepsiye kağıt koyun ve devam edin.</string>
+    <string name="error_paper_jam_desc">Kapağı açın ve sıkışan kağıdı dikkatlice çıkarın.</string>
+
+    <!-- Başlıklar & Placeholder -->
+    <string name="screen_print_title">Ne yazdırmak istiyorsun?</string>
+    <string name="source_document">Belge (PDF, Word, Excel, PPTX)</string>
+    <string name="source_document_title">Belge</string>
+    <string name="source_document_desc">PDF, Word, Excel, PPTX</string>
+    <string name="source_photo">Fotoğraf / Görsel</string>
+    <string name="source_photo_title">Fotoğraf</string>
+    <string name="source_photo_desc">Galeri ve Çoklu Seçim</string>
+    <string name="source_scan">Kamera ile Tara</string>
+    <string name="source_scan_title">Tara</string>
+    <string name="source_scan_desc">Belge Çek ve Kırp</string>
+    <string name="source_notes">Metin / Not</string>
+    <string name="source_notes_title">Metin / Not</string>
+    <string name="source_notes_desc">A4 Belgeye Dönüştür</string>
+    <string name="recent_prints">Son Yazdırılanlar</string>
+    <string name="empty_recent_prints">Henüz yazdırılan belge yok.</string>
+    <string name="recent_job_pages">%1$d sayfa</string>
+    <string name="recent_job_copies">%1$d kopya</string>
+    <string name="recent_job_success">Tamamlandı</string>
+    <string name="recent_job_failed">Hata Oluştu</string>
+    <string name="hardware_status_offline">Çevrimdışı</string>
+    <string name="hardware_status_unknown">Bilinmiyor</string>
+    <string name="hardware_status_disconnected_desc">Yazıcı bağlı değilken donanım sensör verileri okunamaz. Lütfen OTG kablosunu bağlayın.</string>
+
+    <string name="action_refresh">Yenile</string>
+</resources>

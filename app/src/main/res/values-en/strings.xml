@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ohmycapT</string>
+    <string name="app_subtitle">Canon LBP2900 / LBP3000 USB Host</string>
+
+    <!-- Legacy Compatibility Strings -->
+    <string name="nav_home">Home</string>
+    <string name="nav_console">Console</string>
+    <string name="status_connected">Connected &amp; Ready</string>
+    <string name="status_not_connected">Disconnected</string>
+    <string name="printer_searching">Searching for printer&#8230;</string>
+    <string name="print_service_title">Android Print Service</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear">Clear</string>
+    <string name="copy">Copy</string>
+    <string name="console_initial">[CAPT Driver Initialized]\n</string>
+
+    <!-- Navigation Tabs -->
+    <string name="nav_print">Print</string>
+    <string name="nav_printer">Printer</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Onboarding Screen -->
+    <string name="onboarding_title_1">Canon LBP Android Driver</string>
+    <string name="onboarding_desc_1">Connect your LBP2900 and LBP3000 laser printer to your phone, easily print PDFs and photos.</string>
+    <string name="onboarding_title_2">Connect via OTG Cable</string>
+    <string name="onboarding_desc_2">Plug printer USB cable with an OTG adapter into your phone and verify printer power is on.</string>
+    <string name="onboarding_title_3">Grant USB Permission</string>
+    <string name="onboarding_desc_3">Approve the USB connection prompt on your screen to start printing immediately.</string>
+    <string name="btn_skip">Skip</string>
+    <string name="btn_next">Next</string>
+    <string name="btn_start">Start</string>
+
+    <!-- Settings Tab -->
+    <string name="settings_title_defaults">Print Defaults</string>
+    <string name="settings_title_appearance">Appearance</string>
+    <string name="settings_theme_system">System Theme</string>
+    <string name="settings_theme_light">Light Theme</string>
+    <string name="settings_theme_dark">Dark Theme</string>
+    <string name="settings_developer_title">Developer Options</string>
+    <string name="settings_use_fake_repo">Use Simulator (Fake Printer)</string>
+    <string name="settings_use_fake_desc">Simulates all printing, paper out, and jam states without physical hardware.</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_about_desc">Canon LBP2900 / LBP3000 Open Source Android Driver (captdriver).</string>
+    <string name="toast_dev_unlocked">Developer mode unlocked!</string>
+
+    <!-- History Tab -->
+    <string name="tab_queue">Queue</string>
+    <string name="tab_history_sub">History</string>
+    <string name="queue_empty_title">Queue is Empty</string>
+    <string name="queue_empty_desc">There are no pending or active print jobs.</string>
+    <string name="history_empty_title">Print History is Empty</string>
+    <string name="history_empty_desc">Documents you print will be listed here.</string>
+    <string name="action_clear_history">Clear History</string>
+    <string name="dialog_clear_history_title">Clear History?</string>
+    <string name="dialog_clear_history_desc">All print records will be removed permanently.</string>
+    <string name="btn_delete">Delete</string>
+
+    <!-- Print Progress and Completion Screen -->
+    <string name="print_progress_title">Printing</string>
+    <string name="print_completed_title">Printing Completed Successfully!</string>
+    <string name="print_completed_desc">All pages have been transmitted to the printer.</string>
+    <string name="btn_done">Done</string>
+    <string name="btn_reprint">Print Again</string>
+    <string name="btn_approve_next_page">Print Next Page</string>
+    <string name="waiting_sheet_msg">Page %1$d printed. Please load next sheet and confirm.</string>
+
+    <!-- Print Config Screen -->
+    <string name="tab_preview">Preview</string>
+    <string name="tab_settings_sub">Settings</string>
+    <string name="btn_print_now">Print</string>
+    <string name="copies_count">Copies</string>
+    <string name="page_range">Page Range</string>
+    <string name="paper_size">Paper Size</string>
+    <string name="page_scaling">Scaling</string>
+    <string name="toner_density_slider">Density / Darkness</string>
+    <string name="dither_method_title">Conversion Method (Dither)</string>
+    <string name="dither_floyd">Floyd-Steinberg (Recommended for photos)</string>
+    <string name="dither_threshold">Threshold (Recommended for text)</string>
+    <string name="invert_colors">Invert Colors (Negative)</string>
+    <string name="manual_feed_step_by_step">Step-by-Step Print (Prevent Paper Jam)</string>
+    <string name="manual_feed_desc">Pauses after each page and waits for your confirmation before feeding next sheet.</string>
+    <string name="page_counter_preview">Page %1$d / %2$d</string>
+
+    <!-- Printer Sub-tabs -->
+    <string name="tab_status">Status</string>
+    <string name="tab_maintenance">Maintenance</string>
+    <string name="tab_info">Info</string>
+
+    <!-- Printer Status Tab -->
+    <string name="printer_model_title">Canon LBP2900</string>
+    <string name="printer_troubleshoot_title">Troubleshooting Guide</string>
+    <string name="action_print_test_page">Print Test Page</string>
+    <string name="action_query_status">Query Hardware Status</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="action_reconnect">Reconnect</string>
+    <string name="hardware_status_title">Hardware Status (0xA0A8)</string>
+    <string name="paper_status_ok">Paper Present</string>
+    <string name="buffer_status_ok">Buffer Normal</string>
+
+    <!-- Printer Info Tab -->
+    <string name="info_connection_type">Connection Type: USB OTG Bulk Transfer</string>
+    <string name="info_driver_version">Driver: captdriver (Hi-SCoA / 600 DPI)</string>
+    <string name="info_app_version">App Version: 1.0 (ohmycapT)</string>
+    <string name="info_toner_support">Toner Level: Not reported by this printer (mechanical cartridge).</string>
+    <string name="action_share_diagnostics">Share Diagnostic Report</string>
+
+    <!-- Troubleshooting Guide -->
+    <string name="faq_q1">Printer not detected</string>
+    <string name="faq_a1">1. Ensure OTG cable is securely connected.\n2. Verify printer power switch is ON.\n3. Enable OTG in Android system settings if needed.</string>
+    <string name="faq_q2">Output page is completely blank</string>
+    <string name="faq_a2">1. Check if toner cartridge protective tape was removed.\n2. Ensure printer drum rotates smoothly.</string>
+    <string name="faq_q3">Paper jams or multiple sheets feed</string>
+    <string name="faq_a3">1. Do not overload input tray.\n2. Clean rubber roller with a slightly damp cloth.\n3. Enable \'Step-by-step Print\' in print settings.</string>
+
+    <!-- Status Bar & States -->
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_permission_needed">Permission Needed</string>
+    <string name="status_connecting">Connecting&#8230;</string>
+    <string name="status_ready">Printer Ready</string>
+    <string name="status_warming_up">Warming Up&#8230;</string>
+    <string name="status_printing">Printing</string>
+    <string name="status_waiting_next_page">Waiting for Next Sheet</string>
+    <string name="status_paper_out">Out of Paper</string>
+    <string name="status_paper_jam">Paper Jam</string>
+    <string name="status_cover_open">Cover Open</string>
+    <string name="status_toner_low">Toner Low</string>
+    <string name="status_error">Printer Error</string>
+
+    <string name="btn_connect">Connect</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- Error Messages -->
+    <string name="error_printer_not_found">Printer not detected. Check OTG cable and power.</string>
+    <string name="error_permission_denied">USB access permission required.</string>
+    <string name="error_paper_out_desc">Load paper into tray and continue.</string>
+    <string name="error_paper_jam_desc">Open cover and clear jammed paper.</string>
+
+    <!-- Titles & Placeholders -->
+    <string name="screen_print_title">What do you want to print?</string>
+    <string name="source_document">Document (PDF, Word, Excel, PPTX)</string>
+    <string name="source_document_title">Document</string>
+    <string name="source_document_desc">PDF, Word, Excel, PPTX</string>
+    <string name="source_photo">Photo / Image</string>
+    <string name="source_photo_title">Photos</string>
+    <string name="source_photo_desc">Gallery and Multi-select</string>
+    <string name="source_scan">Scan Document</string>
+    <string name="source_scan_title">Scan</string>
+    <string name="source_scan_desc">Capture and Crop</string>
+    <string name="source_notes">Text / Note</string>
+    <string name="source_notes_title">Text / Note</string>
+    <string name="source_notes_desc">Convert to A4 Document</string>
+    <string name="recent_prints">Recent Prints</string>
+    <string name="empty_recent_prints">No printed documents yet.</string>
+    <string name="recent_job_pages">%1$d pages</string>
+    <string name="recent_job_copies">%1$d copies</string>
+    <string name="recent_job_success">Completed</string>
+    <string name="recent_job_failed">Failed</string>
+    <string name="hardware_status_offline">Offline</string>
+    <string name="hardware_status_unknown">Unknown</string>
+    <string name="hardware_status_disconnected_desc">Hardware sensor data cannot be read while the printer is disconnected. Please connect the OTG cable.</string>
+
+    <string name="action_refresh">Refresh</string>
+</resources>

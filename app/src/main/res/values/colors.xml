@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 Expressive Color Palette -->
+    <color name="md_theme_primary">#006494</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#CBE6FF</color>
+    <color name="md_theme_onPrimaryContainer">#001E30</color>
+
+    <color name="md_theme_secondary">#4F6070</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#D2E4F7</color>
+    <color name="md_theme_onSecondaryContainer">#0B1D2B</color>
+
+    <color name="md_theme_tertiary">#65587B</color>
+    <color name="md_theme_onTertiary">#FFFFFF</color>
+    <color name="md_theme_tertiaryContainer">#EBDDFF</color>
+    <color name="md_theme_onTertiaryContainer">#201634</color>
+
+    <color name="md_theme_surface">#F7F9FC</color>
+    <color name="md_theme_onSurface">#191C1E</color>
+    <color name="md_theme_surfaceVariant">#DEE3EB</color>
+    <color name="md_theme_onSurfaceVariant">#42474E</color>
+    <color name="md_theme_surfaceContainer">#ECEFF4</color>
+    <color name="md_theme_surfaceContainerHigh">#E5E9EE</color>
+    <color name="md_theme_surfaceContainerLow">#F2F5F9</color>
+
+    <color name="md_theme_outline">#72777F</color>
+    <color name="md_theme_outlineVariant">#C2C7CF</color>
+
+    <color name="md_theme_error">#BA1A1A</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_errorContainer">#FFDAD6</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
+
+    <color name="badge_success_bg">#E6F4EA</color>
+    <color name="badge_success_text">#137333</color>
+    <color name="badge_error_bg">#FCE8E6</color>
+    <color name="badge_error_text">#C5221F</color>
+    <color name="badge_warn_bg">#FEF7E0</color>
+    <color name="badge_warn_text">#B06000</color>
+
+    <!-- Console Terminal -->
+    <color name="terminal_bg">#111418</color>
+    <color name="terminal_text">#5BF097</color>
+    <color name="terminal_header">#1C222A</color>
+
+    <!-- Geriye uyumluluk renkleri -->
+    <color name="primary">#006494</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#CBE6FF</color>
+    <color name="on_primary_container">#001E30</color>
+    <color name="secondary">#4F6070</color>
+    <color name="surface">#F7F9FC</color>
+    <color name="surface_variant">#DEE3EB</color>
+    <color name="on_surface">#191C1E</color>
+    <color name="success">#137333</color>
+    <color name="error">#BA1A1A</color>
+</resources>
