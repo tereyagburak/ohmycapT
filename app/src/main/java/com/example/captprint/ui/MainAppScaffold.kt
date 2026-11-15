@@ -47,9 +47,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.captprint.CaptApplication
 import com.example.captprint.data.DocumentPreparationEngine
 import com.example.captprint.data.PreparedDocument
 import com.example.captprint.data.repository.PrinterRepository
+import com.example.captprint.domain.model.PrintSettings
 import com.example.captprint.domain.model.PrinterStatus
 import com.example.captprint.feature.history.HistoryScreen
 import com.example.captprint.feature.home.HomeScreen
@@ -58,10 +60,17 @@ import com.example.captprint.feature.printer.PrinterScreen
 import com.example.captprint.feature.progress.PrintProgressScreen
 import com.example.captprint.feature.settings.SettingsScreen
 import com.example.captprint.ui.components.GlobalStatusBar
+import com.example.captprint.ui.components.LivePrinterAlertBanner
 import com.example.captprint.ui.navigation.TopLevelDestination
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
+import android.os.ParcelFileDescriptor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 enum class ScreenState {
     ONBOARDING,
@@ -86,6 +95,72 @@ fun MainAppScaffold(
     var preparedDoc by remember { mutableStateOf<PreparedDocument?>(null) }
     var isPrintCompleted by remember { mutableStateOf(false) }
 
+    fun createSampleDocument(): PreparedDocument {
+        val sampleFile = File(context.cacheDir, "sample_lbp2900_test.pdf")
+        val pdfDoc = PdfDocument()
+        val titlePaint = Paint().apply {
+            color = android.graphics.Color.BLACK
+            textSize = 28f
+            isFakeBoldText = true
+        }
+        val bodyPaint = Paint().apply {
+            color = android.graphics.Color.DKGRAY
+            textSize = 16f
+        }
+        val borderPaint = Paint().apply {
+            color = android.graphics.Color.BLACK
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
+        }
+        for (pageNum in 1..3) {
+            val pageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNum).create()
+            val page = pdfDoc.startPage(pageInfo)
+            val canvas: Canvas = page.canvas
+            canvas.drawColor(android.graphics.Color.WHITE)
+            canvas.drawRect(36f, 36f, 559f, 806f, borderPaint)
+            canvas.drawText("ohmycapT • Test Sayfası $pageNum / 3", 60f, 100f, titlePaint)
+            canvas.drawText("Canon LBP2900 / LBP3000 Simülasyon Belgesi", 60f, 145f, bodyPaint)
+            canvas.drawText("600 DPI • Hi-SCoA • Floyd-Steinberg Dither", 60f, 175f, bodyPaint)
+            pdfDoc.finishPage(page)
+        }
+        FileOutputStream(sampleFile).use { pdfDoc.writeTo(it) }
+        pdfDoc.close()
+        val pfd = ParcelFileDescriptor.open(sampleFile, ParcelFileDescriptor.MODE_READ_ONLY)
+        return PreparedDocument(
+            title = "LBP2900_Test_Belgesi_3Sayfa.pdf",
+            pageCount = 3,
+            pdfFile = sampleFile,
+            pfd = pfd
+        )
+    }
+
+    fun startPrintFlow(doc: PreparedDocument, settings: PrintSettings, targetRepo: PrinterRepository = repository) {
+        isPrintCompleted = false
+        screenState = ScreenState.PRINT_PROGRESS
+        coroutineScope.launch {
+            val res = targetRepo.printDocument(
+                uri = Uri.fromFile(doc.pdfFile),
+                settings = settings,
+                onProgress = { _, _, _, _ -> }
+            )
+            val job = com.example.captprint.data.db.PrintJobEntity(
+                title = doc.title,
+                pageCount = doc.pageCount,
+                timestamp = System.currentTimeMillis(),
+                isSuccess = res.isSuccess,
+                copies = settings.copies,
+                manualFeedUsed = settings.manualFeedStepByStep,
+                failureReason = res.exceptionOrNull()?.message
+            )
+            withContext(Dispatchers.IO) {
+                com.example.captprint.data.db.AppDatabase.getInstance(context).printHistoryDao().insertJob(job)
+            }
+            if (res.isSuccess) {
+                isPrintCompleted = true
+            }
+        }
+    }
+
     when (screenState) {
         ScreenState.ONBOARDING -> {
             com.example.captprint.feature.onboarding.OnboardingScreen(
@@ -98,32 +173,7 @@ fun MainAppScaffold(
                     document = doc,
                     printerStatus = status,
                     onBackClick = { screenState = ScreenState.MAIN_TABS },
-                    onStartPrint = { settings ->
-                        isPrintCompleted = false
-                        screenState = ScreenState.PRINT_PROGRESS
-                        coroutineScope.launch {
-                            val res = repository.printDocument(
-                                uri = Uri.fromFile(doc.pdfFile),
-                                settings = settings,
-                                onProgress = { _, _, _, _ -> }
-                            )
-                            val job = com.example.captprint.data.db.PrintJobEntity(
-                                title = doc.title,
-                                pageCount = doc.pageCount,
-                                timestamp = System.currentTimeMillis(),
-                                isSuccess = res.isSuccess,
-                                copies = settings.copies,
-                                manualFeedUsed = settings.manualFeedStepByStep,
-                                failureReason = res.exceptionOrNull()?.message
-                            )
-                            withContext(Dispatchers.IO) {
-                                com.example.captprint.data.db.AppDatabase.getInstance(context).printHistoryDao().insertJob(job)
-                            }
-                            if (res.isSuccess) {
-                                isPrintCompleted = true
-                            }
-                        }
-                    }
+                    onStartPrint = { settings -> startPrintFlow(doc, settings) }
                 )
             }
         }
@@ -166,12 +216,42 @@ fun MainAppScaffold(
                             onStatusBarClick = { selectedDestination = TopLevelDestination.PRINTER },
                             onConnectClick = { repository.connect() }
                         )
+                        LivePrinterAlertBanner(
+                            status = status,
+                            onBannerClick = { selectedDestination = TopLevelDestination.PRINTER }
+                        )
                         AppScreenContent(
                             destination = selectedDestination,
                             repository = repository,
                             onDocumentReady = { doc ->
                                 preparedDoc = doc
                                 screenState = ScreenState.PRINT_CONFIG
+                            },
+                            onLaunchOnboarding = { screenState = ScreenState.ONBOARDING },
+                            onOpenSampleConfig = {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    val doc = createSampleDocument()
+                                    withContext(Dispatchers.Main) {
+                                        preparedDoc = doc
+                                        screenState = ScreenState.PRINT_CONFIG
+                                    }
+                                }
+                            },
+                            onRunSimulatedPrint = { manualStep, simulateErr ->
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    val app = CaptApplication.instance
+                                    app.switchToFake(true)
+                                    app.fakeRepository.simulateErrorMidPrint = simulateErr
+                                    val doc = createSampleDocument()
+                                    withContext(Dispatchers.Main) {
+                                        preparedDoc = doc
+                                        startPrintFlow(
+                                            doc = doc,
+                                            settings = PrintSettings(manualFeedStepByStep = manualStep),
+                                            targetRepo = app.fakeRepository
+                                        )
+                                    }
+                                }
                             },
                             modifier = Modifier.weight(1f)
                         )
@@ -199,12 +279,42 @@ fun MainAppScaffold(
                             onStatusBarClick = { selectedDestination = TopLevelDestination.PRINTER },
                             onConnectClick = { repository.connect() }
                         )
+                        LivePrinterAlertBanner(
+                            status = status,
+                            onBannerClick = { selectedDestination = TopLevelDestination.PRINTER }
+                        )
                         AppScreenContent(
                             destination = selectedDestination,
                             repository = repository,
                             onDocumentReady = { doc ->
                                 preparedDoc = doc
                                 screenState = ScreenState.PRINT_CONFIG
+                            },
+                            onLaunchOnboarding = { screenState = ScreenState.ONBOARDING },
+                            onOpenSampleConfig = {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    val doc = createSampleDocument()
+                                    withContext(Dispatchers.Main) {
+                                        preparedDoc = doc
+                                        screenState = ScreenState.PRINT_CONFIG
+                                    }
+                                }
+                            },
+                            onRunSimulatedPrint = { manualStep, simulateErr ->
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    val app = CaptApplication.instance
+                                    app.switchToFake(true)
+                                    app.fakeRepository.simulateErrorMidPrint = simulateErr
+                                    val doc = createSampleDocument()
+                                    withContext(Dispatchers.Main) {
+                                        preparedDoc = doc
+                                        startPrintFlow(
+                                            doc = doc,
+                                            settings = PrintSettings(manualFeedStepByStep = manualStep),
+                                            targetRepo = app.fakeRepository
+                                        )
+                                    }
+                                }
                             },
                             modifier = Modifier
                                 .weight(1f)
@@ -317,6 +427,9 @@ fun AppScreenContent(
     destination: TopLevelDestination,
     repository: PrinterRepository,
     onDocumentReady: (PreparedDocument) -> Unit,
+    onLaunchOnboarding: () -> Unit,
+    onOpenSampleConfig: () -> Unit,
+    onRunSimulatedPrint: (manualFeedStepByStep: Boolean, simulateError: Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -339,7 +452,11 @@ fun AppScreenContent(
             )
             TopLevelDestination.PRINTER -> PrinterScreen(repository = repository)
             TopLevelDestination.HISTORY -> HistoryScreen()
-            TopLevelDestination.SETTINGS -> SettingsScreen()
+            TopLevelDestination.SETTINGS -> SettingsScreen(
+                onLaunchOnboarding = onLaunchOnboarding,
+                onOpenSampleConfig = onOpenSampleConfig,
+                onRunSimulatedPrint = onRunSimulatedPrint
+            )
         }
     }
 }

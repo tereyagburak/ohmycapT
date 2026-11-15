@@ -14,6 +14,7 @@ class CaptNative {
 
     external fun nativeOpen(transport: CaptUsbTransport): Int
     external fun nativeQueryStatus(): String
+    external fun nativePollStatus(): IntArray?
 
     // Faz 4 PDF Bant Motoru
     external fun nativeStartPage(widthBytes: Int, heightLines: Int, tonerDensity: Int, invert: Boolean): Int

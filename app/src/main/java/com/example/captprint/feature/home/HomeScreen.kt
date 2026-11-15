@@ -48,6 +48,8 @@ import com.example.captprint.data.db.AppDatabase
 import com.example.captprint.data.db.PrintJobEntity
 import com.example.captprint.ui.theme.StatusError
 import com.example.captprint.ui.theme.StatusSuccess
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
@@ -89,6 +91,37 @@ fun HomeScreen(
 
     val printerStatus = repository?.printerStatus?.collectAsState()?.value ?: PrinterStatus.Disconnected
 
+    val isAlertState = printerStatus is PrinterStatus.CoverOpen ||
+        printerStatus is PrinterStatus.PaperOut ||
+        printerStatus is PrinterStatus.PaperJam ||
+        printerStatus is PrinterStatus.TonerLow ||
+        printerStatus is PrinterStatus.Error
+
+    val cardBgColor by animateColorAsState(
+        targetValue = when (printerStatus) {
+            is PrinterStatus.CoverOpen,
+            is PrinterStatus.PaperOut,
+            is PrinterStatus.PaperJam,
+            is PrinterStatus.Error -> Color(0xFFFCE8E6)
+            is PrinterStatus.TonerLow,
+            is PrinterStatus.WarmingUp -> Color(0xFFFEF7E0)
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        },
+        label = "homePrinterCardBg"
+    )
+    val cardBorderColor by animateColorAsState(
+        targetValue = when (printerStatus) {
+            is PrinterStatus.CoverOpen,
+            is PrinterStatus.PaperOut,
+            is PrinterStatus.PaperJam,
+            is PrinterStatus.Error -> StatusError.copy(alpha = 0.7f)
+            is PrinterStatus.TonerLow,
+            is PrinterStatus.WarmingUp -> StatusWarning.copy(alpha = 0.7f)
+            else -> Color.Transparent
+        },
+        label = "homePrinterCardBorder"
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -101,8 +134,9 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .height(110.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = cardBgColor
             ),
+            border = if (cardBorderColor != Color.Transparent) BorderStroke(1.5.dp, cardBorderColor) else null,
             shape = RoundedCornerShape(20.dp)
         ) {
             Row(
@@ -139,7 +173,7 @@ fun HomeScreen(
                         text = "Canon LBP2900",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isAlertState) Color(0xFF191C1E) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -155,7 +189,7 @@ fun HomeScreen(
                         is PrinterStatus.PaperOut -> "Kağıt Yok" to StatusError
                         is PrinterStatus.PaperJam -> "Kağıt Sıkıştı" to StatusError
                         is PrinterStatus.CoverOpen -> "Kapak Açık" to StatusError
-                        is PrinterStatus.TonerLow -> "Toner Az" to StatusWarning
+                        is PrinterStatus.TonerLow -> "Toner Az / Kartuş" to StatusWarning
                         is PrinterStatus.Error -> "Hata Oluştu" to StatusError
                         is PrinterStatus.Disconnected -> "Hazır Değil (Bağlı Değil)" to StatusError
                     }
@@ -178,10 +212,21 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.height(2.dp))
 
+                    val detailLine = when (printerStatus) {
+                        is PrinterStatus.CoverOpen -> "Kapağı kapatın / toneri kontrol edin"
+                        is PrinterStatus.PaperOut -> "Tepsiye kağıt koyun"
+                        is PrinterStatus.PaperJam -> "Sıkışan kağıdı çıkarın"
+                        is PrinterStatus.TonerLow -> "Toner kartuşunu kontrol edin"
+                        is PrinterStatus.WarmingUp -> "Fuser ünitesi ısınıyor..."
+                        is PrinterStatus.Error -> printerStatus.userMessage
+                        else -> "USB OTG • 600 DPI Lazer"
+                    }
                     Text(
-                        text = "USB OTG • 600 DPI Lazer",
+                        text = detailLine,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = if (isAlertState) Color(0xFF42474E) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
             }

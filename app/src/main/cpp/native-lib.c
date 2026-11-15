@@ -146,6 +146,8 @@ Java_com_example_captprint_CaptNative_nativeQueryStatus(JNIEnv *env, jobject thi
     }
 
     bool no_paper = FLAG(&status, CAPT_FL_NOPAPER1) || FLAG(&status, CAPT_FL_NOPAPER2);
+    bool cover_open = (status.status[3] & 0x4000) || (status.status[2] & 0x0004);
+    bool warming_up = FLAG(&status, CAPT_FL_POWERUP) || FLAG(&status, CAPT_FL_POWERUP1);
     bool buffer_full = FLAG(&status, CAPT_FL_BUFFERFULL);
     bool busy = FLAG(&status, CAPT_FL_BUSY);
     bool printing = FLAG(&status, CAPT_FL_PRINTING);
@@ -154,11 +156,13 @@ Java_com_example_captprint_CaptNative_nativeQueryStatus(JNIEnv *env, jobject thi
     char res[512];
     snprintf(res, sizeof(res),
              "C-DURUM (0xA0A8):\n"
-             "  STATUS0=0x%04X, STATUS1=0x%04X, STATUS2=0x%04X\n"
-             "  Kağıt Yok: %s | Tampon Dolu: %s | Meşgul: %s\n"
-             "  Yazıyor: %s | Hata: %s\n"
+             "  S0=0x%04X S1=0x%04X S2=0x%04X S3=0x%04X S4=0x%04X\n"
+             "  Kapak Açık: %s | Isınıyor: %s | Kağıt Yok: %s\n"
+             "  Tampon Dolu: %s | Meşgul: %s | Yazıyor: %s | Hata: %s\n"
              "  Sayaçlar (Çözülen/Basılan/Çıkan): %u / %u / %u",
-             status.status[0], status.status[1], status.status[2],
+             status.status[0], status.status[1], status.status[2], status.status[3], status.status[4],
+             cover_open ? "EVET" : "HAYIR",
+             warming_up ? "EVET" : "HAYIR",
              no_paper ? "EVET" : "HAYIR",
              buffer_full ? "EVET" : "HAYIR",
              busy ? "EVET" : "HAYIR",
@@ -167,6 +171,28 @@ Java_com_example_captprint_CaptNative_nativeQueryStatus(JNIEnv *env, jobject thi
              status.page_decoding, status.page_printing, status.page_out);
 
     return (*env)->NewStringUTF(env, res);
+}
+
+JNIEXPORT jintArray JNICALL
+Java_com_example_captprint_CaptNative_nativePollStatus(JNIEnv *env, jobject thiz)
+{
+    (void)thiz;
+    struct capt_status status;
+    int ret = capt_get_status(&g_ctx, &status);
+    if (ret != CAPT_SUCCESS) {
+        return NULL;
+    }
+
+    jint buf[8];
+    buf[0] = ret;
+    for (int i = 0; i < 7; ++i) {
+        buf[i + 1] = (jint)status.status[i];
+    }
+
+    jintArray arr = (*env)->NewIntArray(env, 8);
+    if (!arr) return NULL;
+    (*env)->SetIntArrayRegion(env, arr, 0, 8, buf);
+    return arr;
 }
 
 // ------------------- PDF BANT YAZDIRMA METOTLARI -------------------

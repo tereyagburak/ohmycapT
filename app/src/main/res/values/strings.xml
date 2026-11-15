@@ -34,6 +34,13 @@
 
     <!-- Ayarlar Sekmesi -->
     <string name="settings_title_defaults">Yazdırma Varsayılanları</string>
+    <string name="settings_title_sounds">Canon Sürücü Sesleri</string>
+    <string name="settings_sounds_enable">Yazdırma Ses Efektleri</string>
+    <string name="settings_sounds_desc">Gerçek Canon LBP2900 Windows sürücüsü seslerini çalar.</string>
+    <string name="sound_test_done">Bitti Sesi</string>
+    <string name="sound_test_step">Tek Tek Sayfa</string>
+    <string name="sound_test_error">Hata Sesi</string>
+    <string name="sound_test_warn">Uyarı Sesi</string>
     <string name="settings_title_appearance">Görünüm</string>
     <string name="settings_theme_system">Sistem Teması</string>
     <string name="settings_theme_light">Açık Tema</string>

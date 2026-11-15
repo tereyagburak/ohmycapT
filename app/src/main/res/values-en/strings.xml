@@ -34,6 +34,13 @@
 
     <!-- Settings Tab -->
     <string name="settings_title_defaults">Print Defaults</string>
+    <string name="settings_title_sounds">Canon Driver Sounds</string>
+    <string name="settings_sounds_enable">Print Sound Effects</string>
+    <string name="settings_sounds_desc">Plays authentic Canon LBP2900 Windows driver sounds.</string>
+    <string name="sound_test_done">Done Sound</string>
+    <string name="sound_test_step">Step Page</string>
+    <string name="sound_test_error">Error Sound</string>
+    <string name="sound_test_warn">Alert Sound</string>
     <string name="settings_title_appearance">Appearance</string>
     <string name="settings_theme_system">System Theme</string>
     <string name="settings_theme_light">Light Theme</string>

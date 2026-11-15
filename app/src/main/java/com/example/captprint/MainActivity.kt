@@ -11,6 +11,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.captprint.ui.MainAppScaffold
 import com.example.captprint.ui.theme.CaptPrintTheme
 
@@ -25,9 +27,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
+            val activeRepo by app.activeRepository.collectAsState()
             CaptPrintTheme {
                 MainAppScaffold(
-                    repository = app.printerRepository,
+                    repository = activeRepo ?: app.realRepository,
                     widthSizeClass = windowSizeClass.widthSizeClass
                 )
             }

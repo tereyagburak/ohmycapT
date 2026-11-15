@@ -48,6 +48,7 @@ Bilgisayara, sürücü CD'sine veya harici print server cihazlarına gerek yok; 
 - [Mimari](#mimari)
 - [Proje Yapısı](#proje-yapısı)
 - [Ekranlar](#ekranlar)
+- [Ekran Görüntüleri](#ekran-görüntüleri)
 - [Yazdırma Ayarları](#yazdırma-ayarları)
 - [Yazıcı Durumları](#yazıcı-durumları)
 - [Teknoloji Yığını](#teknoloji-yığını)
@@ -156,6 +157,26 @@ ohmycapT/
 | **İlerleme (Progress)** | Sayfa ilerlemesi, bant gönderimi, duraklatma ve elle besleme onayı |
 | **Geçmiş (History)** | Tamamlanan ve geçmiş yazdırma işleri |
 | **Ayarlar (Settings)** | Genel tercihler ve GitHub proje bağlantısı |
+
+## Ekran Görüntüleri
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots-gh/02-home-printer-ready.png" width="200"><br><sub>Ana ekran – yazıcı hazır</sub></td>
+    <td align="center"><img src="screenshots-gh/03-home-printer-disconnected.png" width="200"><br><sub>Ana ekran – yazıcı bağlı değil</sub></td>
+    <td align="center"><img src="screenshots-gh/01-printer-status.png" width="200"><br><sub>Yazıcı durumu (canlı donanım)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots-gh/06-print-preview.png" width="200"><br><sub>Yazdırma önizlemesi</sub></td>
+    <td align="center"><img src="screenshots-gh/05-print-settings.png" width="200"><br><sub>Yazdırma ayarları</sub></td>
+    <td align="center"><img src="screenshots-gh/04-printing-dithering.png" width="200"><br><sub>Yazdırma başlıyor (dithering)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots-gh/08-printing-multipage.png" width="200"><br><sub>Çok sayfalı yazdırma</sub></td>
+    <td align="center"><img src="screenshots-gh/07-manual-feed-waiting.png" width="200"><br><sub>Elle besleme – sonraki kağıt bekleniyor</sub></td>
+    <td align="center"><img src="screenshots-gh/09-print-success.png" width="200"><br><sub>Yazdırma tamamlandı</sub></td>
+  </tr>
+</table>
 
 ## Yazdırma Ayarları
 
@@ -269,6 +290,7 @@ No PC, no driver discs, and no wireless print server hardware required—just yo
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Screens](#screens)
+- [Screenshots](#screenshots)
 - [Print Settings](#print-settings)
 - [Tech Stack](#tech-stack)
 - [Requirements](#requirements)
@@ -376,6 +398,26 @@ ohmycapT/
 | **Progress** | Real-time page counter, band transmission, pause/resume |
 | **History** | Log of previous completed and failed print jobs |
 | **Settings** | Preferences and GitHub repository link |
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots-gh/02-home-printer-ready.png" width="200"><br><sub>Home – printer ready</sub></td>
+    <td align="center"><img src="screenshots-gh/03-home-printer-disconnected.png" width="200"><br><sub>Home – printer disconnected</sub></td>
+    <td align="center"><img src="screenshots-gh/01-printer-status.png" width="200"><br><sub>Printer status (live hardware)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots-gh/06-print-preview.png" width="200"><br><sub>Print preview</sub></td>
+    <td align="center"><img src="screenshots-gh/05-print-settings.png" width="200"><br><sub>Print settings</sub></td>
+    <td align="center"><img src="screenshots-gh/04-printing-dithering.png" width="200"><br><sub>Print starting (dithering)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots-gh/08-printing-multipage.png" width="200"><br><sub>Multi-page printing</sub></td>
+    <td align="center"><img src="screenshots-gh/07-manual-feed-waiting.png" width="200"><br><sub>Manual feed – waiting for next sheet</sub></td>
+    <td align="center"><img src="screenshots-gh/09-print-success.png" width="200"><br><sub>Print completed</sub></td>
+  </tr>
+</table>
 
 ## Print Settings
 

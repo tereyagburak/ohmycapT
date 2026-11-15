@@ -24,6 +24,7 @@ import android.printservice.PrinterDiscoverySession
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.captprint.audio.PrintSoundManager
 import java.io.File
 import java.io.FileOutputStream
 
@@ -41,6 +42,12 @@ class CaptPrintService : PrintService() {
     private var transport: CaptUsbTransport? = null
     private var captNative: CaptNative? = null
     private var rasterizer: PdfPageRasterizer? = null
+    private var ownSoundManager: PrintSoundManager? = null
+
+    private val soundManager: PrintSoundManager
+        get() = (application as? CaptApplication)?.soundManager
+            ?: ownSoundManager
+            ?: PrintSoundManager(this).also { ownSoundManager = it }
 
     override fun onCreate() {
         super.onCreate()
@@ -197,6 +204,7 @@ class CaptPrintService : PrintService() {
 
         if (printer == null) {
             Log.e(TAG, "Yazıcı donanımı bulunamadı")
+            soundManager.playWarning()
             printJob.block("Canon LBP yazıcı bağlı bulunamadı. Lütfen OTG kablosunu kontrol edin.")
             showServiceNotification(
                 "Yazıcı Bulunamadı",
@@ -207,6 +215,7 @@ class CaptPrintService : PrintService() {
 
         if (!trans.hasPermission(printer)) {
             Log.w(TAG, "Yazıcı için USB izni henüz verilmemiş")
+            soundManager.playWarning()
             printJob.block("USB İzni Bekleniyor. Lütfen ohmycapT uygulamasını açarak izin verin.")
             showServiceNotification(
                 "Yazıcı İzni Gerekli",
@@ -218,6 +227,7 @@ class CaptPrintService : PrintService() {
         if (!trans.open(printer)) {
             val err = trans.lastError
             Log.e(TAG, "Yazıcı bağlantısı açılamadı: $err")
+            soundManager.playPrintError()
             printJob.fail("Yazıcı bağlantısı açılamadı: $err")
             return
         }
@@ -231,6 +241,7 @@ class CaptPrintService : PrintService() {
             val doc = printJob.document
             val pfd = doc?.data
             if (pfd == null) {
+                soundManager.playPrintError()
                 printJob.fail("Yazdırılacak belge verisi alınamadı.")
                 return
             }
@@ -246,6 +257,7 @@ class CaptPrintService : PrintService() {
             }
 
             if (!tempPdfFile.exists() || tempPdfFile.length() == 0L) {
+                soundManager.playPrintError()
                 printJob.fail("Yazdırılacak belge verisi boş.")
                 return
             }
@@ -265,13 +277,16 @@ class CaptPrintService : PrintService() {
 
             if (success) {
                 printJob.complete()
+                soundManager.playPrintDone()
                 Log.d(TAG, "Yazdırma işi başarıyla tamamlandı: ${printJob.id}")
                 showServiceNotification("Yazdırma Tamamlandı", "Belge başarıyla yazdırıldı.")
             } else {
+                soundManager.playPrintError()
                 printJob.fail("Yazdırma sırasında bir hata oluştu.")
             }
         } catch (e: Exception) {
             Log.e(TAG, "İş yürütme hatası: ${e.message}", e)
+            soundManager.playPrintError()
             printJob.fail("Yazdırma hatası: ${e.message}")
         } finally {
             try { localPfd?.close() } catch (ignored: Exception) {}
@@ -283,6 +298,7 @@ class CaptPrintService : PrintService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        ownSoundManager?.release()
         captNative?.nativeClose()
         transport?.close()
         handlerThread.quitSafely()
