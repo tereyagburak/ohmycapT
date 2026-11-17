@@ -45,8 +45,7 @@ class CaptApplication : Application() {
         soundManager = PrintSoundManager(this)
         realRepository = RealPrinterRepository(
             context = this,
-            soundManager = soundManager,
-            isRepositoryActive = { !isUsingFakeRepository }
+            soundManager = soundManager
         )
         fakeRepository = FakePrinterRepository(soundManager = soundManager)
         _activeRepository.value = realRepository
@@ -55,7 +54,9 @@ class CaptApplication : Application() {
     fun switchToFake(useFake: Boolean) {
         isUsingFakeRepository = useFake
         _isUsingFake.value = useFake
-        _activeRepository.value = if (useFake) fakeRepository else realRepository
+        realRepository.transport.isVirtualDeviceEnabled = useFake
+        realRepository.refreshStatus()
+        _activeRepository.value = realRepository
     }
 
     fun setDevModeUnlocked(unlocked: Boolean) {
@@ -64,6 +65,31 @@ class CaptApplication : Application() {
             .putBoolean("dev_unlocked", unlocked)
             .apply()
         _isDevModeUnlocked.value = unlocked
+    }
+
+    private val _currentLanguage = MutableStateFlow("tr")
+    val currentLanguage: StateFlow<String> = _currentLanguage.asStateFlow()
+
+    fun setAppLanguage(langCode: String) {
+        val appLocale = androidx.core.os.LocaleListCompat.forLanguageTags(langCode)
+        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(appLocale)
+        _currentLanguage.value = langCode
+        getSharedPreferences("capt_dev_prefs", Context.MODE_PRIVATE)
+            .edit()
+            .putString("app_language", langCode)
+            .apply()
+    }
+
+    fun getAppLanguage(): String {
+        val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+        if (!locales.isEmpty) {
+            val tag = locales.get(0)?.language
+            if (!tag.isNullOrEmpty()) return tag
+        }
+        val saved = getSharedPreferences("capt_dev_prefs", Context.MODE_PRIVATE)
+            .getString("app_language", null)
+        if (!saved.isNullOrEmpty()) return saved
+        return java.util.Locale.getDefault().language.let { if (it.startsWith("tr")) "tr" else "en" }
     }
 
     companion object {

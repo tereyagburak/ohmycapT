@@ -170,4 +170,39 @@
     <string name="hardware_status_disconnected_desc">Yazıcı bağlı değilken donanım sensör verileri okunamaz. Lütfen OTG kablosunu bağlayın.</string>
 
     <string name="action_refresh">Yenile</string>
+
+    <!-- Dil ve Duraklatma / Yeni Özellikler -->
+    <string name="settings_language_title">Uygulama Dili</string>
+    <string name="settings_language_desc">Türkçe ve İngilizce arasında geçiş yapın.</string>
+    <string name="lang_tr">Türkçe</string>
+    <string name="lang_en">English</string>
+
+    <string name="paused_job_title">Duraklatılan Yazdırma İşi</string>
+    <string name="paused_job_desc">%1$d / %2$d sayfa basıldı • Duraklatıldı</string>
+    <string name="btn_resume_print">Sürdür (Devam Et)</string>
+    <string name="btn_cancel_job">İşi İptal Et</string>
+    <string name="btn_pause">Duraklat</string>
+
+    <string name="home_features_title">Öne Çıkan Yetenekler</string>
+    <string name="feature_hiscoa_title">600 DPI Lazer Kalitesi</string>
+    <string name="feature_hiscoa_desc">Hi-SCoA donanım sıkıştırması ve Floyd-Steinberg dither</string>
+    <string name="feature_manual_feed_title">Akıllı Manuel Besleme</string>
+    <string name="feature_manual_feed_desc">Tek tek kontrollü sayfa onayı ile sıfır kağıt sıkışması</string>
+    <string name="feature_sounds_title">Orijinal Sürücü Sesleri</string>
+    <string name="feature_sounds_desc">Windows Canon LBP2900 sürücüsünün gerçek ses motoru</string>
+    <string name="feature_offline_title">%100 Çevrimdışı ve Yerel</string>
+    <string name="feature_offline_desc">İnternet veya sunucu gerektirmez, doğrudan USB OTG kontrolü</string>
+
+    <string name="onboarding_title_choices">Başlangıç Tercihleri</string>
+    <string name="onboarding_desc_choices">Sürücüyü ihtiyaçlarınıza göre hızlıca yapılandırın.</string>
+    <string name="pref_select_language">Uygulama Dili / Language</string>
+    <string name="pref_select_model">Yazıcı Modeli</string>
+    <string name="pref_sound_effects">Canon Sürücü Sesleri</string>
+    <string name="pref_default_paper">Varsayılan Kağıt Boyutu</string>
+
+    <!-- Uygulama Sıfırlama -->
+    <string name="action_reset_all">Tüm Uygulama Verilerini Sıfırla &amp; Kapat</string>
+    <string name="dialog_reset_title">Fabrika Ayarlarına Sıfırla?</string>
+    <string name="dialog_reset_desc">Tüm ayarlar, tercihler, önbellek ve yazdırma geçmişi kalıcı olarak silinecek ve uygulama kapatılacaktır. Tekrar açtığınızda uygulama ilk kez kurulmuş gibi başlayacaktır.</string>
+    <string name="toast_reset_success">Tüm veriler sıfırlandı.</string>
 </resources>

@@ -1,12 +1,16 @@
 package com.example.captprint.feature.settings
 
+import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import kotlin.system.exitProcess
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,17 +20,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.captprint.CaptApplication
 import com.example.captprint.R
+import com.example.captprint.VirtualPrinterState
 import com.example.captprint.data.db.AppDatabase
 import com.example.captprint.data.db.PrintJobEntity
 import com.example.captprint.domain.model.PrinterStatus
@@ -70,8 +81,8 @@ fun SettingsScreen(
     val historyJobs by AppDatabase.getInstance(context).printHistoryDao().getAllJobs().collectAsState(initial = emptyList())
 
     var devClickCount by remember { mutableIntStateOf(0) }
-    var fastSim by remember { mutableStateOf(app.fakeRepository.fastSimulation) }
-    var simErrorMid by remember { mutableStateOf(app.fakeRepository.simulateErrorMidPrint) }
+    var fastSim by remember { mutableStateOf(app.realRepository.transport.virtualPrinter.fastSimulation) }
+    var simErrorMid by remember { mutableStateOf(app.realRepository.transport.virtualPrinter.simulateErrorOnPage == 2) }
     var isPlayingSequence by remember { mutableStateOf(false) }
 
     val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager }
@@ -109,6 +120,43 @@ fun SettingsScreen(
                 Text(text = "Varsayılan Kağıt: A4 (210 x 297 mm)", style = MaterialTheme.typography.bodyMedium)
                 Text(text = "Varsayılan Yoğunluk: 7 (Koyu)", style = MaterialTheme.typography.bodyMedium)
                 Text(text = "Dither Yöntemi: Floyd-Steinberg", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        // 1b. Uygulama Dili (Language Selection)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = stringResource(R.string.settings_language_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.settings_language_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                val currentLang = app.getAppLanguage()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    androidx.compose.material3.FilterChip(
+                        selected = currentLang.startsWith("tr"),
+                        onClick = { app.setAppLanguage("tr") },
+                        label = { Text("🇹🇷 " + stringResource(R.string.lang_tr), fontWeight = FontWeight.SemiBold) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    androidx.compose.material3.FilterChip(
+                        selected = currentLang.startsWith("en"),
+                        onClick = { app.setAppLanguage("en") },
+                        label = { Text("🇬🇧 " + stringResource(R.string.lang_en), fontWeight = FontWeight.SemiBold) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
@@ -228,6 +276,101 @@ fun SettingsScreen(
             }
         }
 
+        // 2b. Uygulamayı Sıfırla (Fabrika Ayarlarına Dönüş)
+        var showResetDialog by remember { mutableStateOf(false) }
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = stringResource(R.string.action_reset_all),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    text = stringResource(R.string.dialog_reset_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedButton(
+                    onClick = { showResetDialog = true },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(stringResource(R.string.action_reset_all), fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        if (showResetDialog) {
+            AlertDialog(
+                onDismissRequest = { showResetDialog = false },
+                title = { Text(stringResource(R.string.dialog_reset_title), fontWeight = FontWeight.Bold) },
+                text = { Text(stringResource(R.string.dialog_reset_desc)) },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showResetDialog = false
+                            coroutineScope.launch(Dispatchers.IO) {
+                                // 1. Veritabanını sil
+                                try {
+                                    AppDatabase.getInstance(context).clearAllTables()
+                                } catch (_: Exception) {}
+
+                                // 2. Tüm SharedPreferences dosyalarını kalıcı olarak temizle
+                                try {
+                                    context.getSharedPreferences("capt_dev_prefs", Context.MODE_PRIVATE).edit().clear().commit()
+                                    context.getSharedPreferences("capt_sound_prefs", Context.MODE_PRIVATE).edit().clear().commit()
+                                    context.getSharedPreferences("capt_prefs", Context.MODE_PRIVATE).edit().clear().commit()
+                                } catch (_: Exception) {}
+
+                                // 3. Tüm önbellek ve yerel dosyaları sil
+                                try {
+                                    context.cacheDir.deleteRecursively()
+                                    context.filesDir.deleteRecursively()
+                                    context.codeCacheDir.deleteRecursively()
+                                } catch (_: Exception) {}
+
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, context.getString(R.string.toast_reset_success), Toast.LENGTH_SHORT).show()
+                                    // 4. Android sistem seviyesinde uygulama depolama alanını tamamen temizle (Settings -> Clear Data)
+                                    // Bu işlem pakete ait tüm verileri siler ve uygulamayı anında sonlandırır.
+                                    val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                                    val cleared = try {
+                                        activityManager?.clearApplicationUserData() ?: false
+                                    } catch (_: Exception) {
+                                        false
+                                    }
+
+                                    // Eğer sistem clearApplicationUserData ile anında kapatmazsa:
+                                    if (!cleared) {
+                                        (context as? Activity)?.finishAffinity()
+                                        exitProcess(0)
+                                    }
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text(stringResource(R.string.btn_delete), fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showResetDialog = false }) {
+                        Text(stringResource(R.string.btn_cancel))
+                    }
+                }
+            )
+        }
+
         // 3. GELİŞTİRİCİ ARAÇLARI & TEST MERKEZİ
         AnimatedVisibility(visible = isDevModeUnlocked) {
             Card(
@@ -290,6 +433,7 @@ fun SettingsScreen(
                             checked = fastSim,
                             onCheckedChange = {
                                 fastSim = it
+                                app.realRepository.transport.virtualPrinter.fastSimulation = it
                                 app.fakeRepository.fastSimulation = it
                             }
                         )
@@ -312,6 +456,7 @@ fun SettingsScreen(
                             checked = simErrorMid,
                             onCheckedChange = {
                                 simErrorMid = it
+                                app.realRepository.transport.virtualPrinter.simulateErrorOnPage = if (it) 2 else -1
                                 app.fakeRepository.simulateErrorMidPrint = it
                             }
                         )
@@ -439,7 +584,7 @@ fun SettingsScreen(
                     HorizontalDivider()
 
                     // D. TÜM YAZICI DURUM TETİKLEYİCİLERİ
-                    Text(text = "Tüm Yazıcı Durum Tetikleyicileri:", fontWeight = FontWeight.Bold)
+                    Text(text = "Tüm Yazıcı Durum Tetikleyicileri (Gerçek Protokol Simülasyonu):", fontWeight = FontWeight.Bold)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -447,7 +592,9 @@ fun SettingsScreen(
                         OutlinedButton(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.READY
                                 app.fakeRepository.setFakeStatus(PrinterStatus.Ready("Canon LBP2900 (Simülatör)", "USB 1-1.2"))
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -456,7 +603,9 @@ fun SettingsScreen(
                         OutlinedButton(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.WARMING_UP
                                 app.fakeRepository.setFakeStatus(PrinterStatus.WarmingUp("Canon LBP2900 (Simülatör)"))
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -479,7 +628,9 @@ fun SettingsScreen(
                         Button(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.PAPER_OUT
                                 app.fakeRepository.setFakeStatus(PrinterStatus.PaperOut)
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -488,7 +639,9 @@ fun SettingsScreen(
                         Button(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.PAPER_JAM
                                 app.fakeRepository.setFakeStatus(PrinterStatus.PaperJam)
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -497,7 +650,9 @@ fun SettingsScreen(
                         Button(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.COVER_OPEN
                                 app.fakeRepository.setFakeStatus(PrinterStatus.CoverOpen)
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -511,7 +666,9 @@ fun SettingsScreen(
                         OutlinedButton(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.TONER_LOW
                                 app.fakeRepository.setFakeStatus(PrinterStatus.TonerLow)
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -529,7 +686,9 @@ fun SettingsScreen(
                         OutlinedButton(
                             onClick = {
                                 app.switchToFake(true)
+                                app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.DISCONNECTED
                                 app.fakeRepository.setFakeStatus(PrinterStatus.Disconnected)
+                                app.realRepository.refreshStatus()
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -539,6 +698,7 @@ fun SettingsScreen(
                     Button(
                         onClick = {
                             app.switchToFake(true)
+                            app.realRepository.transport.virtualPrinter.state = VirtualPrinterState.HARDWARE_ERROR
                             app.fakeRepository.setFakeStatus(
                                 PrinterStatus.Error(
                                     code = -10,
@@ -546,6 +706,7 @@ fun SettingsScreen(
                                     technicalDetail = "CAPT_STATUS_ENGINE_ERROR (0xA0A8: 0x0010)"
                                 )
                             )
+                            app.realRepository.refreshStatus()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                         modifier = Modifier.fillMaxWidth()
@@ -605,7 +766,7 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(text = "Canlı Tanı Özeti", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                            Text(text = "Repository: ${if (isUsingFake) "FakePrinterRepository (Simülatör)" else "RealPrinterRepository (USB)"}", style = MaterialTheme.typography.bodySmall)
+                            Text(text = "Taşıma Katmanı: ${if (isUsingFake) "Sanal Donanım (VirtualCaptPrinter Protokolü)" else "Fiziksel USB OTG"}", style = MaterialTheme.typography.bodySmall)
                             Text(text = "Durum: $currentStatus", style = MaterialTheme.typography.bodySmall)
                             Text(text = "USB Host Desteği: ${if (hasUsbHost) "VAR" else "YOK"}", style = MaterialTheme.typography.bodySmall)
                             Text(text = "Sesler: ${if (isSoundsEnabled) "AÇIK" else "KAPALI"} (Medya: %$mediaVolPercent)", style = MaterialTheme.typography.bodySmall)

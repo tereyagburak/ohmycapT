@@ -22,14 +22,24 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Usb
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -64,6 +74,9 @@ import java.util.Locale
 @Composable
 fun HomeScreen(
     repository: PrinterRepository? = null,
+    pausedDocumentTitle: String? = null,
+    onResumeJob: () -> Unit = {},
+    onCancelJob: () -> Unit = {},
     onFilesSelected: (List<Uri>) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -102,9 +115,9 @@ fun HomeScreen(
             is PrinterStatus.CoverOpen,
             is PrinterStatus.PaperOut,
             is PrinterStatus.PaperJam,
-            is PrinterStatus.Error -> Color(0xFFFCE8E6)
+            is PrinterStatus.Error -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.85f)
             is PrinterStatus.TonerLow,
-            is PrinterStatus.WarmingUp -> Color(0xFFFEF7E0)
+            is PrinterStatus.WarmingUp -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.85f)
             else -> MaterialTheme.colorScheme.surfaceVariant
         },
         label = "homePrinterCardBg"
@@ -128,7 +141,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        // YAZICI BİLGİ VE DURUM KARTI ("Ne yazdırmak istiyorsun?" öncesinde buton yüksekliğinde kompakt kart)
+        // YAZICI BİLGİ VE DURUM KARTI
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,7 +186,7 @@ fun HomeScreen(
                         text = "Canon LBP2900",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (isAlertState) Color(0xFF191C1E) else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isAlertState) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -226,8 +239,104 @@ fun HomeScreen(
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = if (isAlertState) Color(0xFF42474E) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        color = if (isAlertState) MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
+                }
+            }
+        }
+
+        // DURAKLATILAN YAZDIRMA İŞİ BİLGİ VE SÜRDÜRME KARTI
+        if (printerStatus is PrinterStatus.Paused) {
+            val paused = printerStatus as PrinterStatus.Paused
+            Spacer(modifier = Modifier.height(14.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                ),
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.tertiary)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Pause,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.paused_job_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                            Text(
+                                text = (pausedDocumentTitle ?: "Belge") + " • " + stringResource(
+                                    R.string.paused_job_desc,
+                                    paused.completedPages,
+                                    paused.totalPages
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+
+                    LinearProgressIndicator(
+                        progress = { paused.completedPages.toFloat() / paused.totalPages.toFloat() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                        color = MaterialTheme.colorScheme.tertiary,
+                        trackColor = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.2f)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(
+                            onClick = onResumeJob,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onTertiary
+                            )
+                        ) {
+                            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(stringResource(R.string.btn_resume_print), fontWeight = FontWeight.Bold)
+                        }
+
+                        OutlinedButton(
+                            onClick = onCancelJob,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(stringResource(R.string.btn_cancel_job), fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
             }
         }
@@ -345,6 +454,112 @@ fun HomeScreen(
                 displayJobs.forEach { job ->
                     RecentJobItem(job = job)
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // ÖNE ÇIKAN YETENEKLER & ÖZELLİKLER
+        Text(
+            text = stringResource(R.string.home_features_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            FeatureHighlightCard(
+                icon = Icons.Default.Print,
+                title = stringResource(R.string.feature_hiscoa_title),
+                desc = stringResource(R.string.feature_hiscoa_desc),
+                modifier = Modifier.weight(1f)
+            )
+            FeatureHighlightCard(
+                icon = Icons.Default.CheckCircle,
+                title = stringResource(R.string.feature_manual_feed_title),
+                desc = stringResource(R.string.feature_manual_feed_desc),
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            FeatureHighlightCard(
+                icon = Icons.Default.VolumeUp,
+                title = stringResource(R.string.feature_sounds_title),
+                desc = stringResource(R.string.feature_sounds_desc),
+                modifier = Modifier.weight(1f)
+            )
+            FeatureHighlightCard(
+                icon = Icons.Default.Usb,
+                title = stringResource(R.string.feature_offline_title),
+                desc = stringResource(R.string.feature_offline_desc),
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+fun FeatureHighlightCard(
+    icon: ImageVector,
+    title: String,
+    desc: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.height(130.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+        ),
+        shape = RoundedCornerShape(18.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }

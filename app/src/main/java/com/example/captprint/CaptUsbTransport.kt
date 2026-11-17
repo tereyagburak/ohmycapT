@@ -1,7 +1,7 @@
 package com.example.captprint
 
 // ORİJİNAL: Canon CAPT Linux Driver (agalakhov/captdriver) USB I/O mantığı
-// YENİ: Android UsbManager / UsbDeviceConnection tabanlı taşıma katmanı
+// YENİ: Android UsbManager ve Sanal Canon CAPT Donanım Simülatör Taşıma Katmanı
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -19,7 +19,31 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 
 /**
- * Canon CAPT yazıcıları için Android USB OTG iletişim köprüsü.
+ * Canon CAPT yazıcı donanımı temsilcisi (Gerçek USB Cihazı veya Sanal Donanım).
+ */
+sealed class CaptDevice {
+    abstract val deviceName: String
+    abstract val vendorId: Int
+    abstract val productId: Int
+    abstract val isVirtual: Boolean
+
+    data class Usb(val usbDevice: UsbDevice) : CaptDevice() {
+        override val deviceName: String get() = usbDevice.deviceName
+        override val vendorId: Int get() = usbDevice.vendorId
+        override val productId: Int get() = usbDevice.productId
+        override val isVirtual: Boolean get() = false
+    }
+
+    data class Virtual(
+        override val deviceName: String = "Canon LBP2900 (Simülatör)",
+        override val vendorId: Int = CaptUsbTransport.CANON_VID,
+        override val productId: Int = CaptUsbTransport.LBP2900_PID,
+        override val isVirtual: Boolean = true
+    ) : CaptDevice()
+}
+
+/**
+ * Canon CAPT yazıcıları için Android USB OTG ve Sanal Yazıcı uyumluluk taşıma katmanı.
  * Bölüm 7 API sözleşmesini birebir uygular.
  */
 class CaptUsbTransport(context: Context) {
@@ -45,6 +69,11 @@ class CaptUsbTransport(context: Context) {
     private val appContext: Context = context.applicationContext
     private val usbManager: UsbManager = appContext.getSystemService(Context.USB_SERVICE) as UsbManager
 
+    // Sanal Yazıcı Uyumluluk Motoru
+    val virtualPrinter = VirtualCaptPrinter()
+    @Volatile var isVirtualDeviceEnabled: Boolean = false
+    @Volatile private var isVirtualOpen: Boolean = false
+
     private var connection: UsbDeviceConnection? = null
     private var claimedInterface: UsbInterface? = null
     private var endpointIn: UsbEndpoint? = null
@@ -54,7 +83,7 @@ class CaptUsbTransport(context: Context) {
         private set
 
     val isOpen: Boolean
-        get() = (connection != null && claimedInterface != null)
+        get() = isVirtualOpen || (connection != null && claimedInterface != null)
 
     /**
      * Bağlı tüm USB cihazlarını ve ayrıntılı arayüz/uç nokta dökümünü listeler.
@@ -63,7 +92,11 @@ class CaptUsbTransport(context: Context) {
         val list = mutableListOf<String>()
         val deviceList = usbManager.deviceList
 
-        if (deviceList.isEmpty()) {
+        if (isVirtualDeviceEnabled) {
+            list.add("Sanal Donanım: Canon LBP2900 (Simülatör Aktif, Durum: ${virtualPrinter.state})")
+        }
+
+        if (deviceList.isEmpty() && !isVirtualDeviceEnabled) {
             list.add("Bağlı hiçbir USB cihazı bulunamadı. OTG kablosunu ve yazıcının açık olduğunu kontrol edin.")
             return list
         }
@@ -80,7 +113,6 @@ class CaptUsbTransport(context: Context) {
                 sb.appendLine("  -> HEDEF CANON LBP2900 YAZICI EŞLEŞTİ <-")
             }
 
-            // Arayüz ve uç nokta dökümü
             val ifaceCount = device.interfaceCount
             sb.appendLine("  Arayüz sayısı: $ifaceCount")
             for (i in 0 until ifaceCount) {
@@ -105,15 +137,24 @@ class CaptUsbTransport(context: Context) {
 
     /**
      * VID:PID (Canon LBP2900/3000/3100/6000) veya Printer sınıfına göre hedef yazıcıyı bulur.
+     * Simülatör açıksa Sanal Yazıcı Donanımını döndürür.
      */
-    fun findPrinter(): UsbDevice? {
+    fun findPrinter(): CaptDevice? {
+        if (isVirtualDeviceEnabled) {
+            if (virtualPrinter.state == VirtualPrinterState.DISCONNECTED) {
+                lastError = "Sanal yazıcı bağlantısı kesik (DISCONNECTED)."
+                return null
+            }
+            return CaptDevice.Virtual()
+        }
+
         val deviceList = usbManager.deviceList
 
         // 1. Öncelik: Tanımlı Canon CAPT VID ve PID eşleşmesi
         for (device in deviceList.values) {
             if (device.vendorId == CANON_VID && device.productId in SUPPORTED_PIDS) {
                 Log.d(TAG, "Yazıcı Canon CAPT VID/PID ile bulundu: 0x%04X:0x%04X".format(device.vendorId, device.productId))
-                return device
+                return CaptDevice.Usb(device)
             }
         }
 
@@ -121,7 +162,7 @@ class CaptUsbTransport(context: Context) {
         for (device in deviceList.values) {
             if (device.vendorId == CANON_VID) {
                 Log.d(TAG, "Yazıcı Canon VID ile bulundu: 0x%04X:0x%04X".format(device.vendorId, device.productId))
-                return device
+                return CaptDevice.Usb(device)
             }
         }
 
@@ -129,12 +170,12 @@ class CaptUsbTransport(context: Context) {
         for (device in deviceList.values) {
             if (device.deviceClass == USB_CLASS_PRINTER) {
                 Log.d(TAG, "Yazıcı DeviceClass ile bulundu: ${device.deviceName}")
-                return device
+                return CaptDevice.Usb(device)
             }
             for (i in 0 until device.interfaceCount) {
                 if (device.getInterface(i).interfaceClass == USB_CLASS_PRINTER) {
                     Log.d(TAG, "Yazıcı InterfaceClass ile bulundu: ${device.deviceName}")
-                    return device
+                    return CaptDevice.Usb(device)
                 }
             }
         }
@@ -146,21 +187,28 @@ class CaptUsbTransport(context: Context) {
     /**
      * Cihaz için USB izni olup olmadığını denetler.
      */
-    fun hasPermission(device: UsbDevice): Boolean {
-        return usbManager.hasPermission(device)
+    fun hasPermission(device: CaptDevice): Boolean {
+        return when (device) {
+            is CaptDevice.Virtual -> true
+            is CaptDevice.Usb -> usbManager.hasPermission(device.usbDevice)
+        }
     }
 
     /**
      * USB erişim izni ister (Android 12+ ve 14+ kurallarına tam uyumlu).
      */
-    fun requestPermission(device: UsbDevice, onResult: (Boolean) -> Unit) {
+    fun requestPermission(device: CaptDevice, onResult: (Boolean) -> Unit) {
         if (hasPermission(device)) {
             onResult(true)
             return
         }
 
+        val usbDev = (device as? CaptDevice.Usb)?.usbDevice ?: run {
+            onResult(true)
+            return
+        }
+
         val permissionIntent = Intent(ACTION_USB_PERMISSION).apply {
-            // Android 14 kuralı: Mutable PendingIntent açık (explicit) bir paket içermelidir
             setPackage(appContext.packageName)
         }
 
@@ -191,15 +239,23 @@ class CaptUsbTransport(context: Context) {
         )
 
         Log.d(TAG, "USB İzin diyaloğu tetikleniyor...")
-        usbManager.requestPermission(device, pendingIntent)
+        usbManager.requestPermission(usbDev, pendingIntent)
     }
 
     /**
-     * Çift yönlü (IN ve OUT bulk uç noktaları olan) arayüzü seçip bağlantıyı açar.
+     * Yazıcı arayüzünü seçip bağlantıyı açar (Gerçek veya Sanal).
      */
-    fun open(device: UsbDevice): Boolean {
+    fun open(device: CaptDevice): Boolean {
         close()
 
+        if (device is CaptDevice.Virtual) {
+            isVirtualOpen = true
+            virtualPrinter.open()
+            Log.d(TAG, "Sanal yazıcı bağlantısı açıldı.")
+            return true
+        }
+
+        val usbDev = (device as CaptDevice.Usb).usbDevice
         if (!hasPermission(device)) {
             lastError = "Cihaz için USB izni verilmedi."
             Log.e(TAG, lastError)
@@ -210,9 +266,8 @@ class CaptUsbTransport(context: Context) {
         var inEp: UsbEndpoint? = null
         var outEp: UsbEndpoint? = null
 
-        // Bölüm 6 Kuralı: IN ve OUT bulk uç noktası olan alt ayarı/arayüzü bul
-        for (i in 0 until device.interfaceCount) {
-            val iface = device.getInterface(i)
+        for (i in 0 until usbDev.interfaceCount) {
+            val iface = usbDev.getInterface(i)
             var currentIn: UsbEndpoint? = null
             var currentOut: UsbEndpoint? = null
 
@@ -241,26 +296,24 @@ class CaptUsbTransport(context: Context) {
             return false
         }
 
-        val conn = usbManager.openDevice(device)
+        val conn = usbManager.openDevice(usbDev)
         if (conn == null) {
             lastError = "UsbManager.openDevice başarısız oldu (bağlantı açılamadı)."
             Log.e(TAG, lastError)
             return false
         }
 
-        // Arayüzü sahiplen (claim)
         if (!conn.claimInterface(selectedIface, true)) {
             conn.close()
-            lastError = "claimInterface(iface: ${selectedIface.id}) başarısız oldu (başka servis/sürücü tutuyor olabilir)."
+            lastError = "claimInterface(iface: ${selectedIface.id}) başarısız oldu."
             Log.e(TAG, lastError)
             return false
         }
 
-        // Alternatif ayarı etkinleştir
         try {
             conn.setInterface(selectedIface)
         } catch (e: Exception) {
-            Log.w(TAG, "setInterface uyarısı (bazı cihazlarda desteklenmez): ${e.message}")
+            Log.w(TAG, "setInterface uyarısı: ${e.message}")
         }
 
         this.connection = conn
@@ -270,21 +323,19 @@ class CaptUsbTransport(context: Context) {
 
         Log.d(
             TAG,
-            "Yazıcı bağlantısı açıldı: IN=0x%02X, OUT=0x%02X, maxPacketIn=%d, maxPacketOut=%d".format(
-                inEp.address,
-                outEp.address,
-                inEp.maxPacketSize,
-                outEp.maxPacketSize
-            )
+            "Yazıcı bağlantısı açıldı: IN=0x%02X, OUT=0x%02X".format(inEp.address, outEp.address)
         )
         return true
     }
 
     /**
-     * Yazıcıya bulk transfer ile veri yazar (Bölüm 7 sözleşmesi).
-     * Parça boyutu <= 16384 bayt olacak şekilde parçalanarak gönderilir.
+     * Yazıcıya bulk transfer ile veri yazar (JNI tarafından doğrudan çağrılır).
      */
     fun write(buf: ByteArray, len: Int): Int {
+        if (isVirtualOpen) {
+            return virtualPrinter.write(buf, len)
+        }
+
         val conn = connection ?: run {
             lastError = "Yazma hatası: Bağlantı açık değil."
             return -1
@@ -312,16 +363,20 @@ class CaptUsbTransport(context: Context) {
     }
 
     /**
-     * Yazıcıdan bulk transfer ile veri okur (Bölüm 7 sözleşmesi).
+     * Yazıcıdan bulk transfer ile veri okur (JNI tarafından doğrudan çağrılır).
      */
     fun read(buf: ByteArray, maxLen: Int): Int {
         return read(buf, maxLen, DEFAULT_TIMEOUT_MS)
     }
 
     /**
-     * Özel zaman aşımlı okuma (örn. bekleyen veriyi 200 ms ile boşaltmak için).
+     * Özel zaman aşımlı okuma.
      */
     fun read(buf: ByteArray, maxLen: Int, timeoutMs: Int): Int {
+        if (isVirtualOpen) {
+            return virtualPrinter.read(buf, maxLen, timeoutMs)
+        }
+
         val conn = connection ?: run {
             lastError = "Okuma hatası: Bağlantı açık değil."
             return -1
@@ -333,11 +388,6 @@ class CaptUsbTransport(context: Context) {
 
         if (maxLen <= 0 || buf.isEmpty()) return 0
 
-        // Bölüm 6 Kuralı: Okuma tamponu maxPacketSize'dan küçük olmamalıdır
-        if (maxLen < inEp.maxPacketSize) {
-            Log.w(TAG, "UYARI: Okuma tamponu (${maxLen}) uç nokta maxPacketSize'dan (${inEp.maxPacketSize}) küçük!")
-        }
-
         val bytesRead = conn.bulkTransfer(inEp, buf, 0, maxLen, timeoutMs)
         if (bytesRead < 0) {
             lastError = "bulkTransfer okuma zaman aşımı veya hatası (-1)."
@@ -346,9 +396,13 @@ class CaptUsbTransport(context: Context) {
     }
 
     /**
-     * Arayüzü bırakır ve USB bağlantısını kapatır.
+     * Arayüzü bırakır ve bağlantıyı kapatır.
      */
     fun close() {
+        if (isVirtualOpen) {
+            isVirtualOpen = false
+            virtualPrinter.close()
+        }
         try {
             if (claimedInterface != null && connection != null) {
                 connection?.releaseInterface(claimedInterface)

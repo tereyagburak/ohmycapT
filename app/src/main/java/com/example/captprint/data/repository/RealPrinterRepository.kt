@@ -1,8 +1,8 @@
 package com.example.captprint.data.repository
 
 import android.content.Context
-import android.hardware.usb.UsbDevice
 import android.net.Uri
+import com.example.captprint.CaptDevice
 import com.example.captprint.CaptNative
 import com.example.captprint.CaptUsbTransport
 import com.example.captprint.PdfPageRasterizer
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class RealPrinterRepository(
     private val context: Context,
-    private val transport: CaptUsbTransport = CaptUsbTransport(context),
+    val transport: CaptUsbTransport = CaptUsbTransport(context),
     private val captNative: CaptNative = CaptNative(),
     private val rasterizer: PdfPageRasterizer = PdfPageRasterizer(context, captNative),
     private val soundManager: PrintSoundManager? = null,
@@ -41,7 +41,7 @@ class RealPrinterRepository(
     private val isJobActive = AtomicBoolean(false)
     private val usbLock = Any()
 
-    private var activeDevice: UsbDevice? = null
+    private var activeDevice: CaptDevice? = null
     private var nextPageApproval: CompletableDeferred<Unit>? = null
     @Volatile private var isPauseRequested: Boolean = false
     @Volatile private var isCancelledByUser: Boolean = false
@@ -251,7 +251,7 @@ class RealPrinterRepository(
         }
     }
 
-    private fun openAndInit(device: UsbDevice, model: String) {
+    private fun openAndInit(device: CaptDevice, model: String) {
         _status.value = PrinterStatus.Connecting(device.deviceName)
         val ok = synchronized(usbLock) {
             val opened = transport.open(device)
@@ -349,39 +349,45 @@ class RealPrinterRepository(
                 tonerDensity = settings.tonerDensity,
                 copies = settings.copies,
                 onPageFinished = { pageIndex, totalPages ->
-                    // 1. Manuel besleme tek tek onay modu
-                    if (settings.manualFeedStepByStep && pageIndex < totalPages - 1) {
+                    if (pageIndex < totalPages - 1) {
                         val printed = pageIndex + 1
                         val next = pageIndex + 2
-                        _status.value = PrinterStatus.WaitingForNextPage(printed, next, totalPages)
-                        soundManager?.playStepPageReady()
-                        val approval = CompletableDeferred<Unit>()
-                        nextPageApproval = approval
-                        approval.await()
-                        nextPageApproval = null
+
+                        // 1. Yazdırma sırasında Duraklat'a basılmışsa, son sayfa bittiği anda duraklat!
+                        if (isPauseRequested) {
+                            _status.value = PrinterStatus.Paused(completedPages = printed, nextPageIndex = next, totalPages = totalPages)
+                            val resumeWait = CompletableDeferred<Unit>()
+                            pauseDeferred = resumeWait
+                            resumeWait.await()
+                            pauseDeferred = null
+                            isPauseRequested = false
+                        }
+
+                        // 2. Manuel besleme tek tek onay modu
+                        if (settings.manualFeedStepByStep) {
+                            _status.value = PrinterStatus.WaitingForNextPage(printed, next, totalPages)
+                            soundManager?.playStepPageReady()
+                            val approval = CompletableDeferred<Unit>()
+                            nextPageApproval = approval
+                            approval.await()
+                            nextPageApproval = null
+
+                            // Kullanıcı bekleme ekranında "Duraklat"a basmışsa onay çözülür ve burada Paused durumuna geçer
+                            if (isPauseRequested) {
+                                _status.value = PrinterStatus.Paused(completedPages = printed, nextPageIndex = next, totalPages = totalPages)
+                                val resumeWait = CompletableDeferred<Unit>()
+                                pauseDeferred = resumeWait
+                                resumeWait.await()
+                                pauseDeferred = null
+                                isPauseRequested = false
+                            }
+                        }
+
                         _status.value = PrinterStatus.Printing(
                             currentPage = next,
                             totalPages = totalPages,
                             progressPercent = (pageIndex + 1).toFloat() / totalPages.toFloat(),
                             statusMessage = "Sayfa $next / $totalPages dither ediliyor..."
-                        )
-                    }
-
-                    // 2. Kullanıcı tarafından duraklatma (Pause) isteği varsa burada beklet
-                    if (isPauseRequested && pageIndex < totalPages - 1) {
-                        val completed = pageIndex + 1
-                        val next = pageIndex + 2
-                        _status.value = PrinterStatus.Paused(completedPages = completed, nextPageIndex = next, totalPages = totalPages)
-                        val resumeWait = CompletableDeferred<Unit>()
-                        pauseDeferred = resumeWait
-                        resumeWait.await()
-                        pauseDeferred = null
-                        isPauseRequested = false
-                        _status.value = PrinterStatus.Printing(
-                            currentPage = next,
-                            totalPages = totalPages,
-                            progressPercent = (pageIndex + 1).toFloat() / totalPages.toFloat(),
-                            statusMessage = "Devam ediliyor: Sayfa $next / $totalPages hazırlanıyor..."
                         )
                     }
                 },
@@ -410,9 +416,11 @@ class RealPrinterRepository(
 
     override fun pausePrint() {
         isPauseRequested = true
+        nextPageApproval?.complete(Unit)
     }
 
     override fun resumePrint() {
+        isPauseRequested = false
         pauseDeferred?.complete(Unit)
     }
 
@@ -428,9 +436,9 @@ class RealPrinterRepository(
         nextPageApproval?.cancel()
     }
 
-    private fun getModelName(device: UsbDevice): String {
+    private fun getModelName(device: CaptDevice): String {
         return when (device.productId) {
-            CaptUsbTransport.LBP2900_PID -> "Canon LBP2900"
+            CaptUsbTransport.LBP2900_PID -> if (device.isVirtual) "Canon LBP2900 (Simülatör)" else "Canon LBP2900"
             CaptUsbTransport.LBP3000_PID -> "Canon LBP3000"
             CaptUsbTransport.LBP3100_PID -> "Canon LBP3100"
             CaptUsbTransport.LBP6000_PID -> "Canon LBP6000"

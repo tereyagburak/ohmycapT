@@ -170,4 +170,39 @@
     <string name="hardware_status_disconnected_desc">Hardware sensor data cannot be read while the printer is disconnected. Please connect the OTG cable.</string>
 
     <string name="action_refresh">Refresh</string>
+
+    <!-- Language and Paused Job / New Features -->
+    <string name="settings_language_title">App Language</string>
+    <string name="settings_language_desc">Switch between Turkish and English.</string>
+    <string name="lang_tr">Türkçe</string>
+    <string name="lang_en">English</string>
+
+    <string name="paused_job_title">Paused Print Job</string>
+    <string name="paused_job_desc">%1$d of %2$d pages printed • Paused</string>
+    <string name="btn_resume_print">Resume Print</string>
+    <string name="btn_cancel_job">Cancel Job</string>
+    <string name="btn_pause">Pause</string>
+
+    <string name="home_features_title">Key Capabilities</string>
+    <string name="feature_hiscoa_title">600 DPI Laser Quality</string>
+    <string name="feature_hiscoa_desc">Hi-SCoA hardware compression &amp; Floyd-Steinberg dither</string>
+    <string name="feature_manual_feed_title">Smart Manual Feed</string>
+    <string name="feature_manual_feed_desc">Step-by-step confirmation with zero paper jams</string>
+    <string name="feature_sounds_title">Authentic Driver Sounds</string>
+    <string name="feature_sounds_desc">Real audio engine of Windows Canon LBP2900 driver</string>
+    <string name="feature_offline_title">100% Offline &amp; Local</string>
+    <string name="feature_offline_desc">No internet or cloud needed, direct USB OTG control</string>
+
+    <string name="onboarding_title_choices">Initial Preferences</string>
+    <string name="onboarding_desc_choices">Quickly customize the driver to your needs.</string>
+    <string name="pref_select_language">Language / Dil</string>
+    <string name="pref_select_model">Printer Model</string>
+    <string name="pref_sound_effects">Canon Driver Sounds</string>
+    <string name="pref_default_paper">Default Paper Size</string>
+
+    <!-- Reset App Data -->
+    <string name="action_reset_all">Reset All App Data &amp; Exit</string>
+    <string name="dialog_reset_title">Reset to Factory Settings?</string>
+    <string name="dialog_reset_desc">All settings, preferences, cache, and print history will be permanently deleted and the app will close. When reopened, the app will start as a fresh install.</string>
+    <string name="toast_reset_success">All application data has been reset.</string>
 </resources>

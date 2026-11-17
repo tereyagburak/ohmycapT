@@ -74,6 +74,7 @@ fun PrintProgressScreen(
     documentTitle: String,
     totalPages: Int,
     isCompleted: Boolean,
+    isManualFeed: Boolean = false,
     onDoneClick: () -> Unit,
     onReprintClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -535,26 +536,81 @@ fun PrintProgressScreen(
                     Box(modifier = Modifier.fillMaxWidth()) {
                         when (status) {
                             is PrinterStatus.Printing -> {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Button(
-                                        onClick = { repository.pausePrint() },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(48.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF37474F))
+                                if (isManualFeed) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        Icon(Icons.Default.Pause, contentDescription = null, tint = Color.White)
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Duraklat", fontWeight = FontWeight.Bold, color = Color.White)
-                                    }
+                                        Button(
+                                            onClick = {
+                                                repository.pausePrint()
+                                                onDoneClick()
+                                            },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(48.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF37474F))
+                                        ) {
+                                            Icon(Icons.Default.Pause, contentDescription = null, tint = Color.White)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(stringResource(R.string.btn_pause), fontWeight = FontWeight.Bold, color = Color.White)
+                                        }
 
+                                        OutlinedButton(
+                                            onClick = { repository.cancelPrint(); onDoneClick() },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(48.dp)
+                                        ) {
+                                            Text(stringResource(R.string.btn_cancel), color = Color(0xFFFF8A80), fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                } else {
                                     OutlinedButton(
                                         onClick = { repository.cancelPrint(); onDoneClick() },
                                         modifier = Modifier
-                                            .weight(1f)
+                                            .fillMaxWidth()
+                                            .height(48.dp)
+                                    ) {
+                                        Text(stringResource(R.string.btn_cancel), color = Color(0xFFFF8A80), fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            is PrinterStatus.WaitingForNextPage -> {
+                                if (isManualFeed) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Button(
+                                            onClick = {
+                                                repository.pausePrint()
+                                                onDoneClick()
+                                            },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(48.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF37474F))
+                                        ) {
+                                            Icon(Icons.Default.Pause, contentDescription = null, tint = Color.White)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(stringResource(R.string.btn_pause), fontWeight = FontWeight.Bold, color = Color.White)
+                                        }
+
+                                        OutlinedButton(
+                                            onClick = { repository.cancelPrint(); onDoneClick() },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(48.dp)
+                                        ) {
+                                            Text(stringResource(R.string.btn_cancel), color = Color(0xFFFF8A80), fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                } else {
+                                    OutlinedButton(
+                                        onClick = { repository.cancelPrint(); onDoneClick() },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
                                             .height(48.dp)
                                     ) {
                                         Text(stringResource(R.string.btn_cancel), color = Color(0xFFFF8A80), fontWeight = FontWeight.Bold)
@@ -575,7 +631,7 @@ fun PrintProgressScreen(
                                     ) {
                                         Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black)
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Devam Et", fontWeight = FontWeight.Bold, color = Color.Black)
+                                        Text(stringResource(R.string.btn_resume_print), fontWeight = FontWeight.Bold, color = Color.Black)
                                     }
 
                                     OutlinedButton(

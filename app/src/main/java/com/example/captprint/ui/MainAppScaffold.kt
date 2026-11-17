@@ -1,5 +1,6 @@
 package com.example.captprint.ui
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -89,11 +90,24 @@ fun MainAppScaffold(
     val coroutineScope = rememberCoroutineScope()
     val status by repository.printerStatus.collectAsState(initial = PrinterStatus.Disconnected)
 
-    var screenState by rememberSaveable { mutableStateOf(ScreenState.MAIN_TABS) }
+    val prefs = remember { context.getSharedPreferences("capt_prefs", Context.MODE_PRIVATE) }
+    val isOnboardingCompleted = remember { prefs.getBoolean("onboarding_completed", false) }
+
+    var screenState by rememberSaveable {
+        mutableStateOf(if (isOnboardingCompleted) ScreenState.MAIN_TABS else ScreenState.ONBOARDING)
+    }
     var selectedDestination by rememberSaveable { mutableStateOf(TopLevelDestination.PRINT) }
 
     var preparedDoc by remember { mutableStateOf<PreparedDocument?>(null) }
+    var currentPrintSettings by remember { mutableStateOf<PrintSettings?>(null) }
     var isPrintCompleted by remember { mutableStateOf(false) }
+
+    // Duraklatıldığında ana sayfaya dön ve orada sürdürme kartını göster
+    androidx.compose.runtime.LaunchedEffect(status) {
+        if (status is PrinterStatus.Paused && screenState == ScreenState.PRINT_PROGRESS) {
+            screenState = ScreenState.MAIN_TABS
+        }
+    }
 
     fun createSampleDocument(): PreparedDocument {
         val sampleFile = File(context.cacheDir, "sample_lbp2900_test.pdf")
@@ -135,6 +149,7 @@ fun MainAppScaffold(
     }
 
     fun startPrintFlow(doc: PreparedDocument, settings: PrintSettings, targetRepo: PrinterRepository = repository) {
+        currentPrintSettings = settings
         isPrintCompleted = false
         screenState = ScreenState.PRINT_PROGRESS
         coroutineScope.launch {
@@ -164,7 +179,10 @@ fun MainAppScaffold(
     when (screenState) {
         ScreenState.ONBOARDING -> {
             com.example.captprint.feature.onboarding.OnboardingScreen(
-                onFinish = { screenState = ScreenState.MAIN_TABS }
+                onFinish = {
+                    prefs.edit().putBoolean("onboarding_completed", true).apply()
+                    screenState = ScreenState.MAIN_TABS
+                }
             )
         }
         ScreenState.PRINT_CONFIG -> {
@@ -184,9 +202,13 @@ fun MainAppScaffold(
                     documentTitle = doc.title,
                     totalPages = doc.pageCount,
                     isCompleted = isPrintCompleted,
+                    isManualFeed = currentPrintSettings?.manualFeedStepByStep == true,
                     onDoneClick = {
                         screenState = ScreenState.MAIN_TABS
-                        preparedDoc = null
+                        if (isPrintCompleted) {
+                            preparedDoc = null
+                            currentPrintSettings = null
+                        }
                     },
                     onReprintClick = {
                         isPrintCompleted = false
@@ -223,6 +245,16 @@ fun MainAppScaffold(
                         AppScreenContent(
                             destination = selectedDestination,
                             repository = repository,
+                            pausedDocumentTitle = preparedDoc?.title,
+                            onResumeJob = {
+                                screenState = ScreenState.PRINT_PROGRESS
+                                repository.resumePrint()
+                            },
+                            onCancelJob = {
+                                repository.cancelPrint()
+                                preparedDoc = null
+                                currentPrintSettings = null
+                            },
                             onDocumentReady = { doc ->
                                 preparedDoc = doc
                                 screenState = ScreenState.PRINT_CONFIG
@@ -241,14 +273,15 @@ fun MainAppScaffold(
                                 coroutineScope.launch(Dispatchers.IO) {
                                     val app = CaptApplication.instance
                                     app.switchToFake(true)
-                                    app.fakeRepository.simulateErrorMidPrint = simulateErr
+                                    app.realRepository.transport.virtualPrinter.state = com.example.captprint.VirtualPrinterState.READY
+                                    app.realRepository.transport.virtualPrinter.simulateErrorOnPage = if (simulateErr) 2 else -1
                                     val doc = createSampleDocument()
                                     withContext(Dispatchers.Main) {
                                         preparedDoc = doc
                                         startPrintFlow(
                                             doc = doc,
                                             settings = PrintSettings(manualFeedStepByStep = manualStep),
-                                            targetRepo = app.fakeRepository
+                                            targetRepo = app.realRepository
                                         )
                                     }
                                 }
@@ -286,6 +319,16 @@ fun MainAppScaffold(
                         AppScreenContent(
                             destination = selectedDestination,
                             repository = repository,
+                            pausedDocumentTitle = preparedDoc?.title,
+                            onResumeJob = {
+                                screenState = ScreenState.PRINT_PROGRESS
+                                repository.resumePrint()
+                            },
+                            onCancelJob = {
+                                repository.cancelPrint()
+                                preparedDoc = null
+                                currentPrintSettings = null
+                            },
                             onDocumentReady = { doc ->
                                 preparedDoc = doc
                                 screenState = ScreenState.PRINT_CONFIG
@@ -304,14 +347,15 @@ fun MainAppScaffold(
                                 coroutineScope.launch(Dispatchers.IO) {
                                     val app = CaptApplication.instance
                                     app.switchToFake(true)
-                                    app.fakeRepository.simulateErrorMidPrint = simulateErr
+                                    app.realRepository.transport.virtualPrinter.state = com.example.captprint.VirtualPrinterState.READY
+                                    app.realRepository.transport.virtualPrinter.simulateErrorOnPage = if (simulateErr) 2 else -1
                                     val doc = createSampleDocument()
                                     withContext(Dispatchers.Main) {
                                         preparedDoc = doc
                                         startPrintFlow(
                                             doc = doc,
                                             settings = PrintSettings(manualFeedStepByStep = manualStep),
-                                            targetRepo = app.fakeRepository
+                                            targetRepo = app.realRepository
                                         )
                                     }
                                 }
@@ -426,6 +470,9 @@ fun PillNavItem(
 fun AppScreenContent(
     destination: TopLevelDestination,
     repository: PrinterRepository,
+    pausedDocumentTitle: String? = null,
+    onResumeJob: () -> Unit = {},
+    onCancelJob: () -> Unit = {},
     onDocumentReady: (PreparedDocument) -> Unit,
     onLaunchOnboarding: () -> Unit,
     onOpenSampleConfig: () -> Unit,
@@ -439,6 +486,9 @@ fun AppScreenContent(
         when (destination) {
             TopLevelDestination.PRINT -> HomeScreen(
                 repository = repository,
+                pausedDocumentTitle = pausedDocumentTitle,
+                onResumeJob = onResumeJob,
+                onCancelJob = onCancelJob,
                 onFilesSelected = { uris ->
                     coroutineScope.launch(Dispatchers.IO) {
                         val doc = DocumentPreparationEngine.prepareDocument(context, uris)
